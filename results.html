@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>results</title><style>pre { border:1px solid black; }</style></head><body><p>Try c+p the below into a text editor and/ or into <a href="https://validator.w3.org/#validate_by_input">W3C Markup Validator</a>.</p><div>
+testing newline
+<pre>
+++ ./newline.sh
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./newline.sh
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=y
+a=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=y
+a=b'
+++ ./newline.mk
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./newline.mk
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=y
+a=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=y
+a=b'
+</pre>
+testing tab
+<pre>
+++ ./char.sh
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.sh
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=y	a=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=y	a=b'
+++ ./char.mk
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.mk
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=y	a=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=y	a=b'
+</pre>
+testing record-separator 0x1E
+<pre>
+++ ./char.sh
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.sh
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b'
+++ ./char.mk
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.mk
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b'
+</pre>
+testing 2-separators 0x1E and 0x1F
+<pre>
+++ ./2sep.sh
++ test $'a\037b' = $'a\037b'
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}y'
+++ ./2sep.sh
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}yab' = '/lol/wtf=bbq/project std::ftw???\latex{evil}yab'
+++ ./2sep.mk
++ test $'a\037b' = $'a\037b'
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}y'
+++ ./2sep.mk
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}yab' = '/lol/wtf=bbq/project std::ftw???\latex{evil}yab'
+</pre>
+testing form-feed
+<pre>
+++ ./char.sh
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.sh
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b'
+++ ./char.mk
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.mk
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b'
+</pre>
+testing vtab
+<pre>
+++ ./char.sh
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.sh
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b'
+++ ./char.mk
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.mk
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b'
+</pre>
+testing next-line 0x85
+<pre>
+++ ./char.sh
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.sh
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b'
+++ ./char.mk
++ test a=b = a=b
+++ SOURCE_PREFIX_MAP='/lol/wtf=bbq/project std::ftw???\latex{evil}=y'
+++ ./char.mk
++ test '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b' = '/lol/wtf=bbq/project std::ftw???\latex{evil}=ya=b'
+</pre>
+</div></body></html>
