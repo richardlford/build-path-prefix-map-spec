@@ -1,2 +1,3 @@
-/split
-/afl-out-*
+/consume/split
+/consume/afl-out-*
+/produce/*.html

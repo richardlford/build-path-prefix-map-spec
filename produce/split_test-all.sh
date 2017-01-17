@@ -69,7 +69,7 @@ SEP="" checkall "vtab" "" char
 # It is acceptable in XML 1.0/1.1
 SEP="" checkall "next-line 0x85" "" char
 
-} 2>&1 | tee /dev/stderr | to_html > results.html
+} 2>&1 | tee /dev/stderr | to_html > split_results.html
 
 echo >&2 "===="
-echo >&2 "tests succeeded, html log available in results.html"
+echo >&2 "tests succeeded, html log available in split_results.html"
