@@ -1,12 +1,8 @@
 TMPDIR = /run/shm/rb-prefix-map
 
 ALL = split
-
 ALLCHECK_split = split split.py
-envvar_1_split = /a/b=yyy=ERROR	/a=lol		/b=foo	/a/b=yyy=secreteh
-
 ALLCHECK_urlencode = urlencode.py
-envvar_1_urlencode = /a/b%3Dyyy=ERROR&/a=lol&/b=foo&/a/b%3Dyyy=secreteh
 
 .PHONY: all
 all: $(ALL)
@@ -16,23 +12,23 @@ all: $(ALL)
 
 check-apply-generic = \
 	set -ex; for i in $(1); do \
-	  SOURCE_PREFIX_MAP='$(2)' \
-	  ./$$i /a/d /b/1234 /a/b=yyy/xxx | diff -ru - apply.out.1; \
+	  SOURCE_PREFIX_MAP="$$(cat 0.$(2)-$(3).env)" \
+	  ./$$i $$(cat 0.in) | diff -ru - 0.$(2).out; \
 	done
 
 check-apply-none = \
 	set -ex; for i in $(1); do \
-	  ./$$i /a/d /b/1234 /a/b=yyy/xxx | diff -ru - apply.out.2; \
+	  ./$$i $$(cat 0.in) | diff -ru - 0.in; \
 	done
 
 .PHONY: check
 check: check-apply-split check-apply-urlencode
 
 .PHONY: check-apply-%
-check-apply-%: apply.out.1 apply.out.2
+check-apply-%:
 	$(MAKE) $(ALLCHECK_$*)
-	$(call check-apply-generic,$(ALLCHECK_$*),$(envvar_1_$*))
 	$(call check-apply-none,$(ALLCHECK_$*))
+	$(call check-apply-generic,$(ALLCHECK_$*),0,$*)
 
 .PHONY: fuzz-%
 fuzz-%: %
