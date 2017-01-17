@@ -1,6 +1,4 @@
 #include "source_prefix_map.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 /* Parsing the variable. */
 /* For Applying the variable, see source_prefix_map.h. */
@@ -34,7 +32,7 @@ parse_prefix_maps (const char *arg, struct prefix_maps *maps)
       struct prefix_map *map = XNEW (struct prefix_map);
       if (!parse_prefix_map (tok, map))
 	{
-	  fprintf (stderr, "invalid value for prefix-map: %s\n", tok);
+	  fprintf (stderr, "invalid value for prefix-map: '%s'\n", tok);
 	  free (map);
 	  return 0;
 	}
@@ -49,22 +47,5 @@ parse_prefix_maps (const char *arg, struct prefix_maps *maps)
 int
 main (int argc, char *argv[])
 {
-  struct prefix_maps source_prefix_map = { NULL, 0 };
-
-  const char *arg;
-  arg = getenv ("SOURCE_PREFIX_MAP");
-  if (arg)
-    if (!parse_prefix_maps (arg, &source_prefix_map))
-      {
-	fprintf (stderr, "parse_prefix_map failed\n");
-	return 1;
-      }
-
-  for (int i = 1; i < argc; i++)
-    {
-      fprintf (stderr, "%s", argv[i]);
-      printf ("%s\n", remap_prefix (argv[i], &source_prefix_map));
-    }
-
-  return 0;
+  return generic_main (parse_prefix_maps, argc, argv);
 }
