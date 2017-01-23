@@ -1,8 +1,8 @@
-#include "source_prefix_map.h"
+#include "prefix_map.h"
 #include <errno.h>
 
 /* Parsing the variable. */
-/* For Applying the variable, see source_prefix_map.h. */
+/* For Applying the variable, see prefix_map.h. */
 
 int
 unquote (char *src)
@@ -14,11 +14,7 @@ unquote (char *src)
     {
       switch (*src)
 	{
-	case '+':
-	  *dest = ' ';
-	  break;
-	case '&':
-	case ';':
+	case ':':
 	case '=':
 	  return 0; // invalid, should have been escaped
 	case '%':
@@ -65,7 +61,7 @@ parse_prefix_maps (const char *arg, struct prefix_maps *maps)
   char *copy = (char *) alloca (len + 1);
   memcpy (copy, arg, len + 1); // strtok modifies the string so we have to copy it
 
-  char *sep = "&;", *end;
+  char *sep = ":", *end;
   char *tok = strtok_r (copy, sep, &end);
   while (tok != NULL)
     {

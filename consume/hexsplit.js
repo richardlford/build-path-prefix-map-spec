@@ -1,11 +1,11 @@
 #!/usr/bin/nodejs
 
 var unquote = function(x) {
-    return x.replace(/\+/g, " ").split(/=/g, 2).map(decodeURIComponent);
+    return x.split(/=/g, 2).map(unescape);
 };
 
 var parse_prefix_map = function(x) {
-    return x ? x.split(/[;&]/g).map(unquote) : [];
+    return x ? x.split(/:/g).map(unquote) : [];
 }
 
 var map_prefix = function(string, pm) {
@@ -19,7 +19,7 @@ var map_prefix = function(string, pm) {
     return string;
 }
 
-var pm = parse_prefix_map(process.env["SOURCE_PREFIX_MAP"]);
+var pm = parse_prefix_map(process.env["BUILD_PATH_PREFIX_MAP"]);
 
 // var i = 2 is just how nodejs yolos its way through common conventions
 for (var i = 2, l = process.argv.length; i < l; ++i) {

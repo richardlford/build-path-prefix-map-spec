@@ -1,18 +1,17 @@
 TMPDIR = /run/shm/rb-prefix-map
 
-ALL = split urlencode
-ALLCHECK_split = split split.py
-ALLCHECK_urlencode = urlencode urlencode.py
+ALL = hexsplit
+ALLCHECK_hexsplit = hexsplit hexsplit.js hexsplit.py
 
 .PHONY: all
 all: $(ALL)
 
-%: %.c source_prefix_map.h
+%: %.c prefix_map.h
 	$(CC) -Wall -o "$@" "$<"
 
 check-apply-generic = \
 	set -ex; for i in $(1); do \
-	  SOURCE_PREFIX_MAP="$$(cat 0.$(2)-$(3).env)" \
+	  BUILD_PATH_PREFIX_MAP="$$(cat 0.$(2)-$(3).env)" \
 	  ./$$i $$(cat 0.in) | diff -ru - 0.$(2).out; \
 	done
 
@@ -22,7 +21,7 @@ check-apply-none = \
 	done
 
 .PHONY: check
-check: check-apply-split check-apply-urlencode
+check: check-apply-hexsplit
 
 .PHONY: check-apply-%
 check-apply-%:

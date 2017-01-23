@@ -114,15 +114,15 @@ remap_prefix (const char *filename, struct prefix_maps *maps)
 /*
  * Run as one of:
  *
- * $ SOURCE_PREFIX_MAP=${map} ./main ${path0} ${path1} ${path2}
+ * $ BUILD_PATH_PREFIX_MAP=${map} ./main ${path0} ${path1} ${path2}
  * $ printf "${map}\0${path0}\0${path1}\0${path2}\0" | ./main -
  */
 int
 generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int argc, char *argv[])
 {
-  struct prefix_maps source_prefix_map = { NULL, 0 };
+  struct prefix_maps build_path_prefix_map = { NULL, 0 };
 
-  int using_stdin = 0; // 0 = SOURCE_PREFIX_MAP envvar, 1 = stdin (for afl)
+  int using_stdin = 0; // 0 = BUILD_PATH_PREFIX_MAP envvar, 1 = stdin (for afl)
   char *mapstr = NULL;
   if (argc > 1 && strncmp (argv[1], "-", 1) == 0)
     {
@@ -133,10 +133,10 @@ generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int
       using_stdin = 1;
     }
   else
-    mapstr = getenv ("SOURCE_PREFIX_MAP");
+    mapstr = getenv ("BUILD_PATH_PREFIX_MAP");
 
   if (mapstr)
-    if (!parse_prefix_maps (mapstr, &source_prefix_map))
+    if (!parse_prefix_maps (mapstr, &build_path_prefix_map))
       {
 	fprintf (stderr, "parse_prefix_maps failed\n");
 	return 1;
@@ -150,7 +150,7 @@ generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int
       size_t len = 0;
       while (getdelim (&arg, &len, 0, stdin) != -1)
 	{
-	  printf ("%s\n", remap_prefix (arg, &source_prefix_map));
+	  printf ("%s\n", remap_prefix (arg, &build_path_prefix_map));
 	}
 
       if (ferror (stdin))
@@ -161,7 +161,7 @@ generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int
       for (int i = using_stdin ? 2 : 1; i < argc; i++)
 	{
 	  //fprintf (stderr, "%s", argv[i]);
-	  printf ("%s\n", remap_prefix (argv[i], &source_prefix_map));
+	  printf ("%s\n", remap_prefix (argv[i], &build_path_prefix_map));
 	}
     }
 
