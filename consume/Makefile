@@ -20,12 +20,12 @@ check: $(ALL_FORMATS:%=check-%)
 check-generic = \
 	set -x; for i in $(1); do \
 	  ./$$i $$(cat $(T)$(4).in) | diff -ru - "$(T)$(4).in" || exit 1; \
-	  tmpout=$(T)$(4).$(2).env.tmpout; \
+	  tmpout="$(T)$(4).$(2).env.tmpout"; \
 	  BUILD_PATH_PREFIX_MAP="$$(cat $(T)$(4).$(2).env)" \
 	  ./$$i $$(cat $(T)$(4).in) > "$$tmpout"; \
-	  test $$? = $(3) && diff -ru "$$tmpout" $(T)$(4).out && \
+	  test $$? = $(3) && diff -ru "$$tmpout" "$(T)$(4).out" && \
 	    rm -f "$$tmpout" || { rm -f "$$tmpout"; exit 1; }; \
-	done
+	done;
 
 .PHONY: check-%
 check-%:
@@ -34,7 +34,7 @@ check-%:
 	$(foreach case,$(TESTCASES_1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case)))
 
 make-afl-test-case = \
-	cat testcases/$(3).$(1).env testcases/$(3).in > afl-in-$(1)/$(3).in
+	cat testcases/$(3).$(1).env testcases/$(3).in > afl-in-$(1)/$(3).in;
 
 afl-in-%: $(wildcard $(T)/*.in) $(wildcard $(T)/*.env)
 	mkdir -p "$@"

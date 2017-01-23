@@ -1,11 +1,13 @@
 #!/usr/bin/nodejs
 
 var unquote = function(x) {
-    return x.split(/=/g, 2).map(unescape);
+    var parts = x.split(/=/g).map(unescape);
+    if (parts.length !== 2) throw "invalid value: " + x;
+    return parts;
 };
 
 var parse_prefix_map = function(x) {
-    return x ? x.split(/:/g).map(unquote) : [];
+    return x ? x.split(/:+/g).map(unquote) : [];
 }
 
 var map_prefix = function(string, pm) {
