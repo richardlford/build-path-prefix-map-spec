@@ -21,7 +21,7 @@ unquote (char *src)
 	  if (!(x[0] = *++src) || !(x[1] = *++src))
 	    return 0; // invalid, past end of string
 	  sscanf(x, "%2hhx", &c);
-	  if (errno != 0)
+	  if (errno != 0 || !c)
 	    return 0; // invalid, not valid hex
 	  *dest = c;
 	  break;

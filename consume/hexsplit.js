@@ -1,7 +1,7 @@
 #!/usr/bin/nodejs
 
 var unquote = function(x) {
-    var parts = x.split(/=/g).map(unescape);
+    var parts = x.split(/=/g).map(decodeURIComponent);
     if (parts.length !== 2) throw "invalid value: " + x;
     return parts;
 };

@@ -3,3 +3,6 @@ Naming convention is like:
 <expected return code>.<unique name>.in
 <expected return code>.<unique name>.out
 <expected return code>.<unique name>.<format-name>.env
+
+0.allbytes-ok.hexsplit.env was created by running in python:
+>>> open("testcases/0.allbytes-ok.hexsplit.env", "wb").write(bytes(i for i in range(1, 255) if chr(i) not in "%=:\n") + b"=\n")
