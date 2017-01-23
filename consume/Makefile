@@ -1,14 +1,14 @@
 TMPDIR = /run/shm/rb-prefix-map
 
-ALL = split
+ALL = split urlencode
 ALLCHECK_split = split split.py
-ALLCHECK_urlencode = urlencode.py
+ALLCHECK_urlencode = urlencode urlencode.py
 
 .PHONY: all
 all: $(ALL)
 
 %: %.c source_prefix_map.h
-	$(CC) -o "$@" "$<"
+	$(CC) -Wall -o "$@" "$<"
 
 check-apply-generic = \
 	set -ex; for i in $(1); do \

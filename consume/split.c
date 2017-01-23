@@ -7,7 +7,7 @@ int
 parse_prefix_map (const char *arg, struct prefix_map *map)
 {
   const char *p;
-  p = strrchr (arg, '=');
+  p = strrchr (arg, '='); // right-split, to allow for more mapping sources
   if (!p)
     return 0;
   map->old_prefix = xstrndup (arg, p - arg);

@@ -1,3 +1,4 @@
 /consume/split
+/consume/urlencode
 /consume/afl-out-*
 /produce/*.html
