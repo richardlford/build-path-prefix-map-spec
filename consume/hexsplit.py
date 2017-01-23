@@ -11,7 +11,7 @@ def _dequote(part):
     return subs[0] + "".join(chr(int(sub[0:2], 16)) + sub[2:] for sub in subs[1:])
 
 def decode(prefix_str):
-    tuples = (part.split("=") for part in prefix_str.split(":") if part) if prefix_str else ()
+    tuples = (part.split("=") for part in prefix_str.split(":") if part)
     # Will raise if any tuple can't be destructured into a pair
     return [(_dequote(src), _dequote(dst)) for src, dst in tuples]
 
