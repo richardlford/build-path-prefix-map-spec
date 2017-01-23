@@ -5,8 +5,12 @@ ALL_FORMATS = hexsplit
 ALL_SOURCE = hexsplit.c
 ALLCHECK_hexsplit = hexsplit.c.out hexsplit.js hexsplit.py
 
-TESTCASES_0 = $(patsubst $(T)0.%.in,0.%,$(wildcard $(T)0.*.in))
-TESTCASES_1 = $(patsubst $(T)1.%.in,1.%,$(wildcard $(T)1.*.in))
+find_testcases = \
+	TESTCASES_$(1) = $(patsubst $(T)$(1).%.in,$(1).%,$(wildcard $(T)$(1).*.in))
+$(eval $(call find_testcases,0))
+$(eval $(call find_testcases,1))
+$(foreach format,$(ALL_FORMATS),$(eval $(call find_testcases,$(format).0)))
+$(foreach format,$(ALL_FORMATS),$(eval $(call find_testcases,$(format).1)))
 
 .PHONY: all
 all: $(ALL_SOURCE:%=%.out)
@@ -17,21 +21,29 @@ all: $(ALL_SOURCE:%=%.out)
 .PHONY: check
 check: $(ALL_FORMATS:%=check-%)
 
+# 1 progname
+# 2 format
+# 3 expected exit code
+# 4 input
+# 5 env
+# 6 output
 check-generic = \
 	set -x; for i in $(1); do \
 	  ./$$i $$(cat $(T)$(4).in) | diff -ru - "$(T)$(4).in" || exit 1; \
-	  tmpout="$(T)$(4).$(2).env.tmpout"; \
-	  BUILD_PATH_PREFIX_MAP="$$(cat $(T)$(4).$(2).env)" \
+	  tmpout="$(T)$(5).env.tmpout"; \
+	  BUILD_PATH_PREFIX_MAP="$$(cat $(T)$(5).env)" \
 	  ./$$i $$(cat $(T)$(4).in) > "$$tmpout"; \
-	  test $$? = $(3) && diff -ru "$$tmpout" "$(T)$(4).out" && \
+	  test $$? = $(3) && diff -ru "$$tmpout" "$(T)$(6).out" && \
 	    rm -f "$$tmpout" || { rm -f "$$tmpout"; exit 1; }; \
 	done;
 
 .PHONY: check-%
 check-%:
 	$(MAKE) $(ALLCHECK_$*)
-	$(foreach case,$(TESTCASES_0),$(call check-generic,$(ALLCHECK_$*),$*,0,$(case)))
-	$(foreach case,$(TESTCASES_1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case)))
+	$(foreach case,$(TESTCASES_0),$(call check-generic,$(ALLCHECK_$*),$*,0,$(case),$(case).$*,$(case)))
+	$(foreach case,$(TESTCASES_1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case),$(case).$*,$(case)))
+	$(foreach case,$(TESTCASES_$*.0),$(call check-generic,$(ALLCHECK_$*),$*,0,$(case),$(case),$(case)))
+	$(foreach case,$(TESTCASES_$*.1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case),$(case),$(case)))
 
 make-afl-test-case = \
 	cat testcases/$(3).$(1).env testcases/$(3).in > afl-in-$(1)/$(3).in;

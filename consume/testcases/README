@@ -1,8 +1,14 @@
 Naming convention is like:
 
+# Mapping and general IO tests
 <expected return code>.<unique name>.in
-<expected return code>.<unique name>.out
 <expected return code>.<unique name>.<format-name>.env
+<expected return code>.<unique name>.out
 
-0.allbytes-ok.hexsplit.env was created by running in python:
->>> open("testcases/0.allbytes-ok.hexsplit.env", "wb").write(bytes(i for i in range(1, 255) if chr(i) not in "%=:\n") + b"=\n")
+# Format parsing tests
+<format-name>.<expected return code>.<unique name>.in
+<format-name>.<expected return code>.<unique name>.env
+<format-name>.<expected return code>.<unique name>.out
+
+hexsplit.0.allbytes-ok.env was created by running in python3:
+>>> open("testcases/hexsplit.0.allbytes-ok.env", "wb").write(bytes(i for i in range(1, 255) if chr(i) not in "%=:\n") + b"=\n")
