@@ -123,20 +123,23 @@ generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int
   struct prefix_maps build_path_prefix_map = { NULL, 0 };
 
   int using_stdin = 0; // 0 = BUILD_PATH_PREFIX_MAP envvar, 1 = stdin (for afl)
-  char *mapstr = NULL;
+  char *str = NULL;
+  ssize_t read;
+  size_t len_allocated = 0;
+
   if (argc > 1 && strncmp (argv[1], "-", 1) == 0)
     {
-      size_t len = 0;
-      getdelim (&mapstr, &len, 0, stdin);
+      read = getline (&str, &len_allocated, stdin);
+      *(str + read - 1) = 0;
       if (ferror (stdin))
 	goto err_stdin;
       using_stdin = 1;
     }
   else
-    mapstr = getenv ("BUILD_PATH_PREFIX_MAP");
+    str = getenv ("BUILD_PATH_PREFIX_MAP");
 
-  if (mapstr)
-    if (!parse_prefix_maps (mapstr, &build_path_prefix_map))
+  if (str)
+    if (!parse_prefix_maps (str, &build_path_prefix_map))
       {
 	fprintf (stderr, "parse_prefix_maps failed\n");
 	return 1;
@@ -144,13 +147,13 @@ generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int
 
   if (using_stdin)
     {
-      free (mapstr); // as per contract of getdelim()
+      free (str); // as per contract of getdelim()
+      str = NULL;
 
-      char *arg = NULL;
-      size_t len = 0;
-      while (getdelim (&arg, &len, 0, stdin) != -1)
+      while (-1 != (read = getline (&str, &len_allocated, stdin)))
 	{
-	  printf ("%s\n", remap_prefix (arg, &build_path_prefix_map));
+	  *(str + read - 1) = 0;
+	  printf ("%s\n", remap_prefix (str, &build_path_prefix_map));
 	}
 
       if (ferror (stdin))

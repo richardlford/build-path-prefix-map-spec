@@ -1,0 +1,5 @@
+Naming convention is like:
+
+<expected return code>.<unique number>.in
+<expected return code>.<unique number>.out
+<expected return code>.<unique number>.<format-name>.env

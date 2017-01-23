@@ -1,3 +1,4 @@
-/consume/hexsplit
+/consume/*.out
+/consume/afl-in-*
 /consume/afl-out-*
 /produce/*.html
