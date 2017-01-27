@@ -8,9 +8,7 @@ import sys
 chr_n0 = lambda x: (1/x, chr(x))[1]
 
 def _dequote(part):
-    subs = part.split("%")
-    # Will raise if there are <2 chars after % or if these aren't valid hex or if it is %00
-    return subs[0] + "".join(chr_n0(int(sub[0:2], 16)) + sub[2:] for sub in subs[1:])
+    return part.replace("%+", '=').replace("%;", ':').replace("%%", '%');
 
 def decode(prefix_str):
     tuples = (part.split("=") for part in prefix_str.split(":") if part)

@@ -1,14 +1,15 @@
 #!/usr/bin/nodejs
 
 var unquote = function(x) {
-    if (x.indexOf("%00") >= 0) throw "invalid value: " + x;
-    var parts = x.split(/=/g).map(decodeURIComponent);
-    if (parts.length !== 2) throw "invalid value: " + x;
-    return parts;
+    return x.replace(/%\+/g, '=').replace(/%;/g, ':').replace(/%%/g, '%');
 };
 
 var parse_prefix_map = function(x) {
-    return x ? x.split(/:+/g).map(unquote) : [];
+    return x ? x.split(/:+/g).map(function(part) {
+        var tuples = part.split(/=/g).map(unquote);
+        if (tuples.length !== 2) throw "invalid value: " + x;
+        return tuples;
+    }) : [];
 }
 
 var map_prefix = function(string, pm) {

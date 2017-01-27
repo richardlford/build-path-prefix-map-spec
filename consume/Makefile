@@ -1,9 +1,9 @@
 TMPDIR = /run/shm/rb-prefix-map
 T = testcases/
 
-ALL_FORMATS = hexsplit
-ALL_SOURCE = hexsplit.c
-ALLCHECK_hexsplit = hexsplit.c.out hexsplit.js hexsplit.py
+ALL_FORMATS = pecsplit
+ALL_SOURCE = pecsplit.c
+ALLCHECK_pecsplit = pecsplit.c.out pecsplit.js pecsplit.py
 
 find_testcases = \
 	TESTCASES_$(1) = $(patsubst $(T)$(1).%.in,$(1).%,$(wildcard $(T)$(1).*.in))
@@ -48,7 +48,7 @@ check-%:
 make-afl-test-case = \
 	cat testcases/$(3).$(1).env testcases/$(3).in > afl-in-$(1)/$(3).in;
 
-afl-in-%: $(wildcard $(T)/*.in) $(wildcard $(T)/*.env)
+afl-in-%: $(wildcard $(T)*.in) $(wildcard $(T)*.env)
 	mkdir -p "$@"
 	$(foreach case,$(TESTCASES_0),$(call make-afl-test-case,$*,0,$(case)))
 	$(foreach case,$(TESTCASES_1),$(call make-afl-test-case,$*,1,$(case)))

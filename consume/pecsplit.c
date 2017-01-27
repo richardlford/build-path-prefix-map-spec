@@ -7,30 +7,25 @@
 int
 unquote (char *src)
 {
-  char *dest = src;
-  char x[] = {0, 0, 0};
-  char c;
-  while (*src != 0)
-    {
-      switch (*src)
-	{
-	case ':':
-	case '=':
-	  return 0; // invalid, should have been escaped
-	case '%':
-	  if (!(x[0] = *++src) || !(x[1] = *++src))
-	    return 0; // invalid, past end of string
-	  sscanf(x, "%2hhx", &c);
-	  if (errno != 0 || !c)
-	    return 0; // invalid, not valid hex
-	  *dest = c;
-	  break;
-	default:
-	  *dest = *src;
-	}
-      ++dest, ++src;
-    }
-  *dest = '\0';
+  for (char *dest = src; 0 != (*dest = *src); ++dest, ++src)
+    switch (*src)
+      {
+      case ':':
+      case '=':
+	return 0; // should have been escaped
+      case '%':
+	switch (*(src + 1))
+	  {
+	  case ';':
+	    *dest = ':';
+	    goto unquoted;
+	  case '+':
+	    *dest = '=';
+	  unquoted:
+	  case '%':
+	    ++src;
+	  }
+      }
   return 1;
 }
 
@@ -38,7 +33,7 @@ int
 parse_prefix_map (char *arg, struct prefix_map *map)
 {
   char *p;
-  p = strchr (arg, '='); // left-split, to match the urlencode algorithm
+  p = strchr (arg, '=');
   if (!p)
     return 0;
   *p = '\0';
