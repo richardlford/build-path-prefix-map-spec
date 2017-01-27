@@ -17,21 +17,6 @@ xstrdup (const char *s)
   return (char *) memcpy (ret, s, len);
 }
 
-char *
-xstrndup (const char *s, size_t n)
-{
-  char *result;
-  size_t len = strlen (s);
-
-  if (n < len)
-    len = n;
-
-  result = XNEWVEC (char, len + 1);
-
-  result[len] = '\0';
-  return (char *) memcpy (result, s, len);
-}
-
 /* Rest of it, including Applying the variable */
 
 struct prefix_map
@@ -43,9 +28,81 @@ struct prefix_map
   struct prefix_map *next;
 };
 
+struct prefix_maps
+{
+  struct prefix_map *head;
+  size_t max_replace;
+};
+
+/* Add a new mapping.
+ *
+ * The input strings are duplicated and a new prefix_map struct is allocated.
+ * Ownership of the duplicates, as well as the new prefix_map, is the same as
+ * the owner of the overall prefix_maps struct.
+ *
+ * Returns 0 on failure and 1 on success.
+ */
+int
+add_prefix_map (const char *old_prefix, const char *new_prefix,
+		struct prefix_maps *maps)
+{
+  struct prefix_map *map = XNEW (struct prefix_map);
+  if (!map)
+    goto rewind_0;
+
+  map->old_prefix = xstrdup (old_prefix);
+  if (!map->old_prefix)
+    goto rewind_1;
+  map->old_len = strlen (old_prefix);
+
+  map->new_prefix = xstrdup (new_prefix);
+  if (!map->new_prefix)
+    goto rewind_2;
+  map->new_len = strlen (new_prefix);
+
+  map->next = maps->head;
+  maps->head = map;
+
+  if (map->new_len > maps->max_replace)
+    maps->max_replace = map->new_len;
+
+  return 1;
+
+rewind_2:
+  free ((void *) map->old_prefix);
+rewind_1:
+  free (map);
+rewind_0:
+  return 0;
+}
+
+
+/* Clear all mappings.
+ *
+ * All child structs of [maps] are freed, but it itself is not freed.
+ */
+void
+clear_prefix_maps (struct prefix_maps *maps)
+{
+  struct prefix_map *map;
+  struct prefix_map *next;
+
+  for (map = maps->head; map; map = next)
+    {
+      free ((void *) map->old_prefix);
+      free ((void *) map->new_prefix);
+      next = map->next;
+      free (map);
+    }
+
+  maps->max_replace = 0;
+}
+
+
+/* Private function, assumes new_name is wide enough to hold the remapped name. */
 const char *
-apply_prefix_map (const char *old_name, char *new_name,
-		  struct prefix_map *map_head)
+_apply_prefix_map (const char *old_name, char *new_name,
+		   struct prefix_map *map_head)
 {
   struct prefix_map *map;
   const char *name;
@@ -62,23 +119,9 @@ apply_prefix_map (const char *old_name, char *new_name,
   return new_name;
 }
 
-struct prefix_maps
-{
-  struct prefix_map *head;
-  size_t max_replace;
-};
 
-void
-add_prefix_map (struct prefix_map *map, struct prefix_maps *maps)
-{
-  map->next = maps->head;
-  maps->head = map;
-
-  if (map->new_len > maps->max_replace)
-    maps->max_replace = map->new_len;
-}
-
-/*
+/* Remap a filename.
+ *
  * This function does not consume nor take ownership of filename; the caller is
  * responsible for freeing it, if and only if it was already responsible for
  * freeing it before the call.
@@ -92,7 +135,7 @@ remap_prefix_alloc (const char *filename, struct prefix_maps *maps, void *(*allo
 {
   size_t maxlen = strlen (filename) + maps->max_replace + 1;
   char *newname = (char *) alloca (maxlen);
-  const char *name = apply_prefix_map (filename, newname, maps->head);
+  const char *name = _apply_prefix_map (filename, newname, maps->head);
 
   if (name == filename)
     return filename;
@@ -101,21 +144,28 @@ remap_prefix_alloc (const char *filename, struct prefix_maps *maps, void *(*allo
   return (char *) memcpy (alloc (len), newname, len);
 }
 
-// Like remap_prefix_alloc but with the system allocator.
+
+/* Like remap_prefix_alloc but with the system allocator. */
 const char *
 remap_prefix (const char *filename, struct prefix_maps *maps)
 {
   return remap_prefix_alloc (filename, maps, malloc);
 }
 
+
 #include <stdlib.h>
 #include <stdio.h>
 
 /*
- * Run as one of:
+ * Run as:
  *
  * $ BUILD_PATH_PREFIX_MAP=${map} ./main ${path0} ${path1} ${path2}
+ *
+ * Or a more clumsy interface, required by afl-fuzz:
+ *
  * $ printf "${map}\0${path0}\0${path1}\0${path2}\0" | ./main -
+ *
+ * Returns 1 on failure and 0 on success.
  */
 int
 generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int argc, char *argv[])
@@ -142,7 +192,7 @@ generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int
     if (!parse_prefix_maps (str, &build_path_prefix_map))
       {
 	fprintf (stderr, "parse_prefix_maps failed\n");
-	return 1;
+	goto err_exit;
       }
 
   if (using_stdin)
@@ -163,14 +213,19 @@ generic_main (int (*parse_prefix_maps) (const char *, struct prefix_maps *), int
     {
       for (int i = using_stdin ? 2 : 1; i < argc; i++)
 	{
-	  //fprintf (stderr, "%s", argv[i]);
-	  printf ("%s\n", remap_prefix (argv[i], &build_path_prefix_map));
+	  const char *newarg = remap_prefix (argv[i], &build_path_prefix_map);
+	  printf ("%s\n", newarg);
+	  if (newarg != argv[i])
+	    free ((void *) newarg); // as per contract of remap_prefix()
 	}
     }
 
+  clear_prefix_maps (&build_path_prefix_map);
   return 0;
 
 err_stdin:
   perror ("failed to read from stdin");
+err_exit:
+  clear_prefix_maps (&build_path_prefix_map);
   return 1;
 }

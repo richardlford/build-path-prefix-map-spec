@@ -1,5 +1,4 @@
 #include "prefix_map.h"
-#include <errno.h>
 
 /* Parsing the variable. */
 /* For Applying the variable, see prefix_map.h. */
@@ -29,8 +28,9 @@ unquote (char *src)
   return 1;
 }
 
+/* Returns 0 on failure and 1 on success. */
 int
-parse_prefix_map (char *arg, struct prefix_map *map)
+parse_prefix_map (char *arg, struct prefix_maps *maps)
 {
   char *p;
   p = strchr (arg, '=');
@@ -39,16 +39,14 @@ parse_prefix_map (char *arg, struct prefix_map *map)
   *p = '\0';
   if (!unquote (arg))
     return 0;
-  map->old_prefix = xstrdup (arg);
-  map->old_len = strlen (arg);
   p++;
   if (!unquote (p))
     return 0;
-  map->new_prefix = xstrdup (p);
-  map->new_len = strlen (p);
-  return 1;
+
+  return add_prefix_map (arg, p, maps);
 }
 
+/* Returns 0 on failure and 1 on success. */
 int
 parse_prefix_maps (const char *arg, struct prefix_maps *maps)
 {
@@ -60,15 +58,12 @@ parse_prefix_maps (const char *arg, struct prefix_maps *maps)
   char *tok = strtok_r (copy, sep, &end);
   while (tok != NULL)
     {
-      struct prefix_map *map = XNEW (struct prefix_map);
-      if (!parse_prefix_map (tok, map))
+      if (!parse_prefix_map (tok, maps))
 	{
 	  fprintf (stderr, "invalid value for prefix-map: '%s'\n", arg);
-	  free (map);
 	  return 0;
 	}
 
-      add_prefix_map (map, maps);
       tok = strtok_r (NULL, sep, &end);
     }
 

@@ -5,6 +5,10 @@ ALL_FORMATS = pecsplit
 ALL_SOURCE = pecsplit.c
 ALLCHECK_pecsplit = pecsplit.c.out pecsplit.js pecsplit.py
 
+export AFL_USE_ASAN=1
+AFL_MEMLIM = none
+# 20971595M also seems to work with afl-gcc amd64 6.2.1-5
+
 find_testcases = \
 	TESTCASES_$(1) = $(patsubst $(T)$(1).%.in,$(1).%,$(wildcard $(T)$(1).*.in))
 $(eval $(call find_testcases,0))
@@ -61,10 +65,10 @@ fuzz-%: %.out
 	echo >&2 "warning: you didn't set CC=afl-gcc, fuzzing might not work"
 	set -e; if test -d "afl-out-$*"; then \
 	echo >&2 "afl-out-$* exists, reusing. run 'make reset-fuzz-$* to delete it."; \
-	afl-fuzz -i - -o "afl-out-$*" -- "./$<" -; else \
+	afl-fuzz -m $(AFL_MEMLIM) -i - -o "afl-out-$*" -- "./$<" -; else \
 	mkdir -p $(TMPDIR); \
 	ln -s "$$(mktemp -d -p $(TMPDIR))" "afl-out-$*"; \
-	afl-fuzz -i "afl-in-$(basename $*)" -o "afl-out-$*" -- "./$<" -; fi
+	afl-fuzz -m $(AFL_MEMLIM) -i "afl-in-$(basename $*)" -o "afl-out-$*" -- "./$<" -; fi
 
 .PHONY: reset-fuzz-%
 reset-fuzz-%:
