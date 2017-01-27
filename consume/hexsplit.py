@@ -5,10 +5,12 @@ import sys
 
 # Parsing the variable
 
+chr_n0 = lambda x: (1/x, chr(x))[1]
+
 def _dequote(part):
     subs = part.split("%")
-    # Will raise if there are <2 chars after % or if these aren't valid hex
-    return subs[0] + "".join(chr(int(sub[0:2], 16)) + sub[2:] for sub in subs[1:])
+    # Will raise if there are <2 chars after % or if these aren't valid hex or if it is %00
+    return subs[0] + "".join(chr_n0(int(sub[0:2], 16)) + sub[2:] for sub in subs[1:])
 
 def decode(prefix_str):
     tuples = (part.split("=") for part in prefix_str.split(":") if part)
@@ -26,4 +28,5 @@ def map_prefix(string, pm):
     return string
 
 for v in sys.argv[1:]:
-    print(map_prefix(v, pm))
+    # print() tries to auto-encode its args without surrogateescape
+    sys.stdout.buffer.write(map_prefix(v, pm).encode("utf-8", errors="surrogateescape") + b"\n")
