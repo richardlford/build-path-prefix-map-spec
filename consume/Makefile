@@ -1,3 +1,7 @@
+# To add a new interpreted-language example, add it to ALLCHECK_pecsplit
+# To add a new compiled-language example, add the source to ALL_SOURCE, the
+# output to ALLCHECK_pecsplit, then add any relevant rules to compile it.
+
 TMPDIR = /run/shm/rb-prefix-map
 T = testcases/
 

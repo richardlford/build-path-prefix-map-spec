@@ -5,12 +5,12 @@ var unquote = function(x) {
 };
 
 var parse_prefix_map = function(x) {
-    return x ? x.split(/:+/g).map(function(part) {
+    return (x || "").split(/:/g).filter(Boolean).map(function(part) {
         var tuples = part.split(/=/g).map(unquote);
         if (tuples.length !== 2) throw "invalid value: " + x;
         return tuples;
-    }) : [];
-}
+    });
+};
 
 var map_prefix = function(string, pm) {
     for (var i = pm.length - 1; i >= 0; --i) {;
@@ -21,7 +21,7 @@ var map_prefix = function(string, pm) {
         }
     }
     return string;
-}
+};
 
 var pm = parse_prefix_map(process.env["BUILD_PATH_PREFIX_MAP"]);
 
