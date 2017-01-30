@@ -163,7 +163,7 @@ remap_prefix (const char *filename, struct prefix_maps *maps)
  *
  * Or a more clumsy interface, required by afl-fuzz:
  *
- * $ printf "${map}\0${path0}\0${path1}\0${path2}\0" | ./main -
+ * $ printf "${map}\n${path0}\n${path1}\n${path2}\n" | ./main -
  *
  * Returns 1 on failure and 0 on success.
  */
