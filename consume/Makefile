@@ -37,6 +37,16 @@ check: $(ALL_FORMATS:%=check-%)
 # 6 output
 check-generic = \
 	set -x; for i in $(1); do \
+	  if test -f "$(T)$(4).in.ignore-$$i"; then \
+	    set +x; \
+	    printf >&2 "\033[1;31m================================================================\033[0m\n"; \
+	    printf >&2 "\033[1;31mvvvv IGNORING $$i for $(4).in because: vvvv\033[0m\n"; \
+	    cat >&2 "$(T)$(4).in.ignore-$$i"; \
+	    printf >&2 "\033[1;31m^^^^ IGNORING $$i for $(4).in because: ^^^^\033[0m\n"; \
+	    printf >&2 "\033[1;31m================================================================\033[0m\n"; \
+	    set -x; \
+	    continue; \
+	  fi; \
 	  ./$$i $$(cat $(T)$(4).in) | diff -ru - "$(T)$(4).in" || exit 1; \
 	  tmpout="$(T)$(5).env.tmpout"; \
 	  BUILD_PATH_PREFIX_MAP="$$(cat $(T)$(5).env)" \
