@@ -21,7 +21,7 @@ unquote (char *src)
 	  case '+':
 	    *dest = '=';
 	  unquoted:
-	  case '%':
+	  case 'p':
 	    ++src;
 	  }
       }

@@ -8,7 +8,7 @@ import sys
 chr_n0 = lambda x: (1/x, chr(x))[1]
 
 def _dequote(part):
-    return part.replace("%+", '=').replace("%;", ':').replace("%%", '%');
+    return part.replace("%+", '=').replace("%;", ':').replace("%p", '%');
 
 def decode(prefix_str):
     tuples = (part.split("=") for part in prefix_str.split(":") if part)
