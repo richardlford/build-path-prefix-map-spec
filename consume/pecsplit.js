@@ -1,7 +1,7 @@
 #!/usr/bin/nodejs
 
 var unquote = function(x) {
-    return x.replace(/%\+/g, '=').replace(/%;/g, ':').replace(/%p/g, '%');
+    return x.replace(/%c/g, ':').replace(/%e/g, '=').replace(/%p/g, '%');
 };
 
 var parse_prefix_map = function(x) {

@@ -15,10 +15,10 @@ unquote (char *src)
       case '%':
 	switch (*(src + 1))
 	  {
-	  case ';':
+	  case 'c':
 	    *dest = ':';
 	    goto unquoted;
-	  case '+':
+	  case 'e':
 	    *dest = '=';
 	  unquoted:
 	  case 'p':
