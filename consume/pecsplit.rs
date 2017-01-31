@@ -70,12 +70,14 @@ fn map_prefix(path: PathBuf, pm: &Vec<(PathBuf, PathBuf)>) -> PathBuf {
 
 fn main() {
   use std::env;
-  use std::io::{Write, stdout};
+  use std::io::{Write, stdout, stderr};
 
   let pm = decode(env::var_os("BUILD_PATH_PREFIX_MAP"))
-    .unwrap_or_else(|_| std::process::exit(1));
+    .unwrap_or_else(|msg| {
+      writeln!(stderr(), "{}", msg).unwrap();
+      std::process::exit(1)
+    });
 
-  //use std::io::Write;
   //writeln!(&mut std::io::stderr(), "pm = {:?}", pm).unwrap();
   for arg in env::args_os().skip(1) {
     let path = map_prefix(PathBuf::from(arg), &pm);
