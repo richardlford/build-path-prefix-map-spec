@@ -6,12 +6,15 @@ TMPDIR = /run/shm/rb-prefix-map
 T = testcases/
 
 ALL_FORMATS = pecsplit
-ALL_SOURCE = pecsplit.c
-ALLCHECK_pecsplit = pecsplit.c.out pecsplit.js pecsplit.py
+ALL_SOURCE = pecsplit.c pecsplit.rs
+ALLCHECK_pecsplit = pecsplit.c.out pecsplit.rs.out pecsplit.js pecsplit.py
 
 export AFL_USE_ASAN=1
 AFL_MEMLIM = none
 # 20971595M also seems to work with afl-gcc amd64 6.2.1-5
+
+CC ?= cc
+RUSTC ?= rustc
 
 find_testcases = \
 	TESTCASES_$(1) = $(patsubst $(T)$(1).%.in,$(1).%,$(wildcard $(T)$(1).*.in))
@@ -25,6 +28,9 @@ all: $(ALL_SOURCE:%=%.out)
 
 %.c.out: %.c prefix_map.h
 	$(CC) -Wall -o "$@" "$<"
+
+%.rs.out: %.rs
+	$(RUSTC) -W warnings -o "$@" "$<"
 
 .PHONY: check
 check: $(ALL_FORMATS:%=check-%)
