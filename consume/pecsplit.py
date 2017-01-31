@@ -5,8 +5,6 @@ import sys
 
 # Parsing the variable
 
-chr_n0 = lambda x: (1/x, chr(x))[1]
-
 def _dequote(part):
     return part.replace("%c", ':').replace("%e", '=').replace("%p", '%');
 
