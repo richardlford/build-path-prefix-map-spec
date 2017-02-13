@@ -17,7 +17,7 @@ xstrdup (const char *s)
   return (char *) memcpy (ret, s, len);
 }
 
-/* Rest of it, including Applying the variable */
+/** Applying the variable */
 
 struct prefix_map
 {
@@ -152,6 +152,7 @@ remap_prefix (const char *filename, struct prefix_maps *maps)
   return remap_prefix_alloc (filename, maps, malloc);
 }
 
+/** Main program */
 
 #include <stdlib.h>
 #include <stdio.h>

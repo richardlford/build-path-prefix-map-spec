@@ -1,7 +1,7 @@
 #include "prefix_map.h"
 
-/* Parsing the variable. */
-/* For Applying the variable, see prefix_map.h. */
+/** Parsing the variable. */
+/* For Applying the variable, and Main program, see prefix_map.h. */
 
 int
 unquote (char *src)

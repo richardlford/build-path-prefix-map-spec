@@ -8,6 +8,8 @@ fn pathbuf_to_u8(path: &PathBuf) -> &[u8] {
   path.as_os_str().as_bytes() // TODO: windows
 }
 
+/** Parsing the variable */
+
 /* the polymorphism is to handle u8 (POSIX) and u16 (windows) */
 fn dequote<T>(s: &[T]) -> Result<Vec<T>, &'static str> where u16: From<T>, T: From<u8>, T: Copy {
   // unfortunately we can't do sting-replace on arbitrary Vecs
@@ -60,12 +62,14 @@ fn decode(prefix_str: Option<OsString>) -> Result<Vec<(PathBuf, PathBuf)>, &'sta
     .collect::<Result<Vec<_>, _>>()
 }
 
+/** Applying the variable */
+
 fn map_prefix(path: PathBuf, pm: &Vec<(PathBuf, PathBuf)>) -> PathBuf {
   for pair in pm.iter().rev() {
     let (ref src, ref dst) = *pair;
     if path.starts_with(src) {
       /* FIXME: this is different from what our other language examples do;
-       * rust's PathBuf.starts_with only matches whole components. however
+       * rust's [PathBuf.starts_with] only matches whole components. however
        * these all behave the same for our test cases.
        */
       return dst.join(path.strip_prefix(src).unwrap())
@@ -73,6 +77,8 @@ fn map_prefix(path: PathBuf, pm: &Vec<(PathBuf, PathBuf)>) -> PathBuf {
   }
   path
 }
+
+/** Main program */
 
 fn main() {
   use std::env;
