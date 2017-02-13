@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 
+import re
 import os
 import sys
 
 # Parsing the variable
 
 def _dequote(part):
+    if re.search(r"%[^pec]|%$", part): raise ValueError("bad escape: %s" % part)
     return part.replace("%c", ':').replace("%e", '=').replace("%p", '%');
 
 def decode(prefix_str):

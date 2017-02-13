@@ -9,7 +9,9 @@ fn pathbuf_to_u8(path: &PathBuf) -> &[u8] {
 }
 
 /* the polymorphism is to handle u8 (POSIX) and u16 (windows) */
-fn dequote<T>(s: &[T]) -> Vec<T> where u16: From<T>, T: From<u8>, T: Copy {
+fn dequote<T>(s: &[T]) -> Result<Vec<T>, &'static str> where u16: From<T>, T: From<u8>, T: Copy {
+  // unfortunately we can't do sting-replace on arbitrary Vecs
+  // s.replace("%c", ':').replace("%e", '=').replace("%p", '%')
   let mut v = Vec::with_capacity(s.len());
   let mut escaped = false;
   for c in s {
@@ -23,14 +25,18 @@ fn dequote<T>(s: &[T]) -> Vec<T> where u16: From<T>, T: From<u8>, T: Copy {
           0x70 /* p */ => { v.pop(); v.pop(); v.push(T::from(b'%')) },
           0x65 /* e */ => { v.pop(); v.pop(); v.push(T::from(b'=')) },
           0x63 /* c */ => { v.pop(); v.pop(); v.push(T::from(b':')) },
-          _ => (),
+          _ => break // to the "Err" clause
         }
       }
     }
     escaped = c16 == 0x25
   }
-  v.shrink_to_fit();
-  v
+  if escaped {
+    Err("invalid %-escape sequence")
+  } else {
+    v.shrink_to_fit();
+    Ok(v)
+  }
 }
 
 fn decode(prefix_str: Option<OsString>) -> Result<Vec<(PathBuf, PathBuf)>, &'static str> {
@@ -46,8 +52,8 @@ fn decode(prefix_str: Option<OsString>) -> Result<Vec<(PathBuf, PathBuf)>, &'sta
         Err("either too few or too many '='")
       } else {
         // TODO: windows
-        let src = OsString::from_vec(dequote(tuple[0]));
-        let dst = OsString::from_vec(dequote(tuple[1]));
+        let src = OsString::from_vec(try!(dequote(tuple[0])));
+        let dst = OsString::from_vec(try!(dequote(tuple[1])));
         Ok((PathBuf::from(src), PathBuf::from(dst)))
       }
     })

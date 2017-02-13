@@ -23,6 +23,9 @@ unquote (char *src)
 	  unquoted:
 	  case 'p':
 	    ++src;
+	    break;
+	  default:
+	    return 0; // invalid
 	  }
       }
   return 1;

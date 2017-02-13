@@ -1,13 +1,14 @@
 #!/usr/bin/nodejs
 
 var unquote = function(x) {
+    if (x.search(/%[^pec]|%$/) >= 0) throw "invalid value: bad escape: " + x;
     return x.replace(/%c/g, ':').replace(/%e/g, '=').replace(/%p/g, '%');
 };
 
 var parse_prefix_map = function(x) {
     return (x || "").split(/:/g).filter(Boolean).map(function(part) {
         var tuples = part.split(/=/g).map(unquote);
-        if (tuples.length !== 2) throw "invalid value: " + x;
+        if (tuples.length !== 2) throw "invalid value: not a pair: " + pair;
         return tuples;
     });
 };
