@@ -55,9 +55,9 @@ The encoding is as follows:
 
 - Each encoded pair element is encoded with the following mapping:
 
-  1. ``%`` -> ``%p``
-  2. ``=`` -> ``%e``
-  3. ``:`` -> ``%c``
+  1. ``%`` → ``%p``
+  2. ``=`` → ``%e``
+  3. ``:`` → ``%c``
 
   When decoding, ``%`` characters at the end of a string are a parse error, as
   are ``%[X]`` substrings where ``[X]`` is any character not in ``pec``.
@@ -70,8 +70,8 @@ The encoding is as follows:
   Implementation notes: due to our choice of characters, there is flexibility
   in the order in which these mappings may be applied; this is meant to ease
   implementation in a variety of programming languages. The only restriction is
-  that the ``%`` -> ``%p`` mapping for encoding must not be applied on
-  already-encoded %-substrings; and that the ``%e`` -> ``=``, ``%c`` -> ``:``
+  that the ``%`` → ``%p`` mapping for encoding must not be applied on
+  already-encoded %-substrings; and that the ``%e`` → ``=``, ``%c`` → ``:``
   mappings for decoding must not be applied on already-decoded %-substrings.
 
   Our recommended approach for a high-level language with string replace:
@@ -254,7 +254,7 @@ Rejected options
 
   - Extra characters like "+" ";" need to be encoded.
 
-  - Decoders in many languages only decode to a { key -> value list }; there is
+  - Decoders in many languages only decode to a { key → value list }; there is
     no way to turn this into a list-of-pairs preserving the original ordering.
 
 - Mapping % into %% (or \ into \\, etc), because this causes differences when
