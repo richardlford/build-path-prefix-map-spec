@@ -16,6 +16,7 @@ AFL_MEMLIM = none
 CC ?= cc
 RUSTC ?= rustc
 
+# Args:
 # 1 key, e.g. "0" or "pecsplit.0"
 # 2 suffix that indicates a test, e.g. "in" or "env"
 find_testcases = \
@@ -37,43 +38,14 @@ all: $(ALL_SOURCE:%=%.out)
 .PHONY: check
 check: $(ALL_FORMATS:%=check-%)
 
-# 1 progname
-# 2 format
-# 3 expected exit code
-# 4 prefix for .in, .out
-# 5 prefix for .env
-# 6 prefix for .in, .out if $(4) doesn't exist
-check-generic = \
-	for i in $(1); do \
-	  if test -f "$(T)$(4).in.ignore-$$i"; then \
-	    set +x; \
-	    printf >&2 "\033[1;31m================================================================\033[0m\n"; \
-	    printf >&2 "\033[1;31mvvvv IGNORING $$i for $(4).in because: vvvv\033[0m\n"; \
-	    cat >&2 "$(T)$(4).in.ignore-$$i"; \
-	    printf >&2 "\033[1;31m^^^^ IGNORING $$i for $(4).in because: ^^^^\033[0m\n"; \
-	    printf >&2 "\033[1;31m================================================================\033[0m\n"; \
-	    set -x; \
-	    continue; \
-	  fi; \
-	  if [ -f "$(T)$(4).in" ]; then input="$(T)$(4).in"; else input="$(T)$(6).in"; fi; \
-	  if [ -f "$(T)$(4).out" ]; then output="$(T)$(4).out"; else output="$(T)$(6).out"; fi; \
-	  set -x; \
-	  ./$$i $$(cat "$$input") | diff -ru - "$$input" || exit 1; \
-	  tmpout="$(T)$(5).env.tmpout"; \
-	  BUILD_PATH_PREFIX_MAP="$$(cat $(T)$(5).env)" \
-	  ./$$i $$(cat "$$input") > "$$tmpout"; \
-	  test $$? = $(3) && diff -ru "$$tmpout" "$$output" && \
-	    rm -f "$$tmpout" || { rm -f "$$tmpout"; exit 1; }; \
-	  set +x 2>/dev/null; \
-	done;
-
+export TESTDIR = $(T)
 .PHONY: check-%
 check-%:
 	$(MAKE) $(ALLCHECK_$*)
-	$(foreach case,$(TESTCASES_0),$(call check-generic,$(ALLCHECK_$*),$*,0,$(case),$(case).$*,$(case)))
-	$(foreach case,$(TESTCASES_1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case),$(case).$*,$(case)))
-	$(foreach case,$(TESTCASES_$*.0),$(call check-generic,$(ALLCHECK_$*),$*,0,$(case),$(case),$*.0))
-	$(foreach case,$(TESTCASES_$*.1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case),$(case),$*.1))
+	for case in $(TESTCASES_0); do ./check-generic.sh "$(ALLCHECK_$*)" $* 0 $$case $$case.$* $$case; done
+	for case in $(TESTCASES_1); do ./check-generic.sh "$(ALLCHECK_$*)" $* 1 $$case $$case.$* $$case; done
+	for case in $(TESTCASES_$*.0); do ./check-generic.sh "$(ALLCHECK_$*)" $* 0 $$case $$case $*.0; done
+	for case in $(TESTCASES_$*.1); do ./check-generic.sh "$(ALLCHECK_$*)" $* 1 $$case $$case $*.1; done
 
 make-afl-test-case = \
 	cat testcases/$(3).$(1).env testcases/$(3).in > afl-in-$(1)/$(3).in;
