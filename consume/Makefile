@@ -16,12 +16,14 @@ AFL_MEMLIM = none
 CC ?= cc
 RUSTC ?= rustc
 
+# 1 key, e.g. "0" or "pecsplit.0"
+# 2 suffix that indicates a test, e.g. "in" or "env"
 find_testcases = \
-	TESTCASES_$(1) = $(patsubst $(T)$(1).%.in,$(1).%,$(wildcard $(T)$(1).*.in))
-$(eval $(call find_testcases,0))
-$(eval $(call find_testcases,1))
-$(foreach format,$(ALL_FORMATS),$(eval $(call find_testcases,$(format).0)))
-$(foreach format,$(ALL_FORMATS),$(eval $(call find_testcases,$(format).1)))
+	TESTCASES_$(1) = $(patsubst $(T)$(1).%.$(2),$(1).%,$(wildcard $(T)$(1).*.$(2)))
+$(eval $(call find_testcases,0,in))
+$(eval $(call find_testcases,1,in))
+$(foreach format,$(ALL_FORMATS),$(eval $(call find_testcases,$(format).0,env)))
+$(foreach format,$(ALL_FORMATS),$(eval $(call find_testcases,$(format).1,env)))
 
 .PHONY: all
 all: $(ALL_SOURCE:%=%.out)
@@ -38,11 +40,11 @@ check: $(ALL_FORMATS:%=check-%)
 # 1 progname
 # 2 format
 # 3 expected exit code
-# 4 input
-# 5 env
-# 6 output
+# 4 prefix for .in, .out
+# 5 prefix for .env
+# 6 prefix for .in, .out if $(4) doesn't exist
 check-generic = \
-	set -x; for i in $(1); do \
+	for i in $(1); do \
 	  if test -f "$(T)$(4).in.ignore-$$i"; then \
 	    set +x; \
 	    printf >&2 "\033[1;31m================================================================\033[0m\n"; \
@@ -53,12 +55,16 @@ check-generic = \
 	    set -x; \
 	    continue; \
 	  fi; \
-	  ./$$i $$(cat $(T)$(4).in) | diff -ru - "$(T)$(4).in" || exit 1; \
+	  if [ -f "$(T)$(4).in" ]; then input="$(T)$(4).in"; else input="$(T)$(6).in"; fi; \
+	  if [ -f "$(T)$(4).out" ]; then output="$(T)$(4).out"; else output="$(T)$(6).out"; fi; \
+	  set -x; \
+	  ./$$i $$(cat "$$input") | diff -ru - "$$input" || exit 1; \
 	  tmpout="$(T)$(5).env.tmpout"; \
 	  BUILD_PATH_PREFIX_MAP="$$(cat $(T)$(5).env)" \
-	  ./$$i $$(cat $(T)$(4).in) > "$$tmpout"; \
-	  test $$? = $(3) && diff -ru "$$tmpout" "$(T)$(6).out" && \
+	  ./$$i $$(cat "$$input") > "$$tmpout"; \
+	  test $$? = $(3) && diff -ru "$$tmpout" "$$output" && \
 	    rm -f "$$tmpout" || { rm -f "$$tmpout"; exit 1; }; \
+	  set +x 2>/dev/null; \
 	done;
 
 .PHONY: check-%
@@ -66,8 +72,8 @@ check-%:
 	$(MAKE) $(ALLCHECK_$*)
 	$(foreach case,$(TESTCASES_0),$(call check-generic,$(ALLCHECK_$*),$*,0,$(case),$(case).$*,$(case)))
 	$(foreach case,$(TESTCASES_1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case),$(case).$*,$(case)))
-	$(foreach case,$(TESTCASES_$*.0),$(call check-generic,$(ALLCHECK_$*),$*,0,$(case),$(case),$(case)))
-	$(foreach case,$(TESTCASES_$*.1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case),$(case),$(case)))
+	$(foreach case,$(TESTCASES_$*.0),$(call check-generic,$(ALLCHECK_$*),$*,0,$(case),$(case),$*.0))
+	$(foreach case,$(TESTCASES_$*.1),$(call check-generic,$(ALLCHECK_$*),$*,1,$(case),$(case),$*.1))
 
 make-afl-test-case = \
 	cat testcases/$(3).$(1).env testcases/$(3).in > afl-in-$(1)/$(3).in;
