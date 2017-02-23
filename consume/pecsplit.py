@@ -7,7 +7,7 @@ import sys
 # Parsing the variable
 
 def _dequote(part):
-  if re.search(r"%[^#+\.]|%$", part):
+  if re.search(r"%[^#+.]|%$", part):
     raise ValueError("bad escape: %s" % part)
   return part.replace("%.", ':').replace("%+", '=').replace("%#", '%');
 

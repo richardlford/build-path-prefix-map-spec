@@ -83,7 +83,7 @@ The encoding is as follows:
 
   A. decoding:
 
-     1. check elem does not match the regex ``/%[^#+\.]|%$/g``, then
+     1. check elem does not match the regex ``/%[^#+.]|%$/g``, then
      2. ``elem.replace("%.", ':').replace("%+", '=').replace("%#", '%')``
 
   B. encoding:
