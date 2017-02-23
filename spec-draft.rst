@@ -33,13 +33,12 @@ platforms, these string types are the types of both filesystem paths and
 environment variables on that platform.
 
 When implementing this data structure encoding, either (a) you MUST directly
-operate on the string types described above *without* also decoding or encoding
-them using a character encoding (e.g. UTF-8 or UTF-16); or (b) if you must use
-a character encoding e.g. because your language's standard libraries force you
-to, then you MUST ensure that the overall encode+decode and decode+encode
-operations always exactly preserves the original structure or value, even if it
-contains data that was invalid for the character encoding that was used. See
-[TODO link] for further details and guidance on how to do this.
+operate on the system string types described above *without* also decoding or
+encoding them using a character encoding such as UTF-8 or UTF-16; or (b) if you
+must use a character encoding e.g. because your language's standard libraries
+force you to, then either it is total and injective over the system string type
+[0]_, or you MUST raise a parse error for inputs where it is undefined or not
+injective. See [TODO link] for further details and guidance on how to do this.
 
 The encoding is as follows:
 
@@ -47,10 +46,6 @@ The encoding is as follows:
 
   Empty subsequences between ``:`` characters, or between a ``:`` character and
   either the left or right end of the envvar, are valid and are ignored. [1]_
-
-  .. [1] This is to make it easier for producers to append values, e.g. as in
-         ``envvar += ":" + encoded_pair`` which would be valid even if envvar
-         is originally empty.
 
 - Each encoded list item contains exactly one ``=`` character, that separates
   encoded pair elements.
@@ -62,10 +57,6 @@ The encoding is as follows:
 
   The encoded pair elements may be empty; this does not need special-casing if
   the rest of the document is implemented correctly.
-
-  .. [2] This is to "fail early" in the cases that a naive producer does not
-         encode characters like ``=`` but the build path or target path does
-         actually contain them.
 
 - Each encoded pair element is encoded with the following mapping:
 
@@ -173,6 +164,24 @@ Detailed implementation notes and advice are available at
 
 Example source code is available on the above page, as well as in runnable form
 on `<https://github.com/infinity0/rb-prefix-map>`_. FIXME use alioth link
+
+
+Notes
+=====
+
+.. [0] In practice, this means any two byte sequences that are invalid UTF-8,
+    or ``wchar_t`` sequences that are invalid UTF-16, are decoded into distinct
+    application-level character string values. This is not satisfied by most
+    standard Unicode decoding strategies, which is to replace invalid input
+    sequences with ``U+FFFD REPLACEMENT CHARACTER``.
+
+.. [1] This is to make it easier for producers to append values, e.g. as in
+    ``envvar += ":" + encoded_pair`` which would be valid even if envvar is
+    originally empty.
+
+.. [2] This is to "fail early" in the cases that a naive producer does not
+    encode characters like ``=`` but the build path or target path does
+    actually contain them.
 
 
 References
