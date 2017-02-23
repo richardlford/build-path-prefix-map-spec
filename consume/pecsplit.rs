@@ -13,7 +13,7 @@ fn pathbuf_to_u8(path: &PathBuf) -> &[u8] {
 /* the polymorphism is to handle u8 (POSIX) and u16 (windows) */
 fn dequote<T>(s: &[T]) -> Result<Vec<T>, &'static str> where u16: From<T>, T: From<u8>, T: Copy {
   // unfortunately we can't do sting-replace on arbitrary Vecs
-  // s.replace("%c", ':').replace("%e", '=').replace("%p", '%')
+  // s.replace("%.", ':').replace("%+", '=').replace("%#", '%')
   let mut v = Vec::with_capacity(s.len());
   let mut escaped = false;
   for c in s {
@@ -24,9 +24,9 @@ fn dequote<T>(s: &[T]) -> Result<Vec<T>, &'static str> where u16: From<T>, T: Fr
       0x3D /* = */ => unreachable!(),
       _ => if escaped {
         match c16 {
-          0x70 /* p */ => { v.pop(); v.pop(); v.push(T::from(b'%')) },
-          0x65 /* e */ => { v.pop(); v.pop(); v.push(T::from(b'=')) },
-          0x63 /* c */ => { v.pop(); v.pop(); v.push(T::from(b':')) },
+          0x23 /* # */ => { v.pop(); v.pop(); v.push(T::from(b'%')) },
+          0x2B /* + */ => { v.pop(); v.pop(); v.push(T::from(b'=')) },
+          0x2E /* . */ => { v.pop(); v.pop(); v.push(T::from(b':')) },
           _ => break // to the "Err" clause
         }
       }

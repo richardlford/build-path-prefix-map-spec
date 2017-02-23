@@ -7,9 +7,9 @@ import sys
 # Parsing the variable
 
 def _dequote(part):
-  if re.search(r"%[^pec]|%$", part):
+  if re.search(r"%[^#+\.]|%$", part):
     raise ValueError("bad escape: %s" % part)
-  return part.replace("%c", ':').replace("%e", '=').replace("%p", '%');
+  return part.replace("%.", ':').replace("%+", '=').replace("%#", '%');
 
 def decode(prefix_str):
   tuples = (part.split("=") for part in prefix_str.split(":") if part)

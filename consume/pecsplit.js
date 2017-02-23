@@ -3,9 +3,9 @@
 // Parsing the variable
 
 var unquote = function(x) {
-  if (x.search(/%[^pec]|%$/) >= 0)
+  if (x.search(/%[^#+\.]|%$/) >= 0)
     throw "invalid value: bad escape: " + x;
-  return x.replace(/%c/g, ':').replace(/%e/g, '=').replace(/%p/g, '%');
+  return x.replace(/%\./g, ':').replace(/%\+/g, '=').replace(/%#/g, '%');
 };
 
 var parse_prefix_map = function(x) {

@@ -60,12 +60,12 @@ The encoding is as follows:
 
 - Each encoded pair element is encoded with the following mapping:
 
-  1. ``%`` → ``%p``
-  2. ``=`` → ``%e``
-  3. ``:`` → ``%c``
+  1. ``%`` → ``%#``
+  2. ``=`` → ``%+``
+  3. ``:`` → ``%.``
 
   When decoding, ``%`` characters at the end of a string are a parse error, as
-  are ``%[X]`` substrings where ``[X]`` is any character not in ``pec``.
+  are ``%[X]`` substrings where ``[X]`` is any character not in ``#+.``.
 
   This encoding allows paths containing ``%``, ``=``, ``:`` to be mapped; since
   users may want to run their builds under such paths. However as a producer,
@@ -75,20 +75,20 @@ The encoding is as follows:
   Implementation notes: due to our choice of characters, there is flexibility
   in the order in which these mappings may be applied; this is meant to ease
   implementation in a variety of programming languages. The only restriction is
-  that the ``%`` → ``%p`` mapping for encoding must not be applied on
-  already-encoded %-substrings; and that the ``%e`` → ``=``, ``%c`` → ``:``
+  that the ``%`` → ``%#`` mapping for encoding must not be applied on
+  already-encoded %-substrings; and that the ``%+`` → ``=``, ``%.`` → ``:``
   mappings for decoding must not be applied on already-decoded %-substrings.
 
   Our recommended approach for a high-level language with string replace:
 
   A. decoding:
 
-     1. check elem does not match the regex ``/%[^pec]|%$/g``, then
-     2. ``elem.replace("%c", ':').replace("%e", '=').replace("%p", '%')``
+     1. check elem does not match the regex ``/%[^#+\.]|%$/g``, then
+     2. ``elem.replace("%.", ':').replace("%+", '=').replace("%#", '%')``
 
   B. encoding:
 
-     1. ``elem.replace("%p", '%').replace("%e", '=').replace("%c", ':')``
+     1. ``elem.replace("%#", '%').replace("%+", '=').replace("%.", ':')``
 
   Our recommended approach for a low-level language without string replace:
 
