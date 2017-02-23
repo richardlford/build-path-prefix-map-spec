@@ -172,7 +172,7 @@ Notes
 .. [0] In practice, this means any two byte sequences that are invalid UTF-8,
     or ``wchar_t`` sequences that are invalid UTF-16, are decoded into distinct
     application-level character string values. This is not satisfied by most
-    standard Unicode decoding strategies, which is to replace invalid input
+    standard Unicode decoding strategies, which is to replace all invalid input
     sequences with ``U+FFFD REPLACEMENT CHARACTER``.
 
 .. [1] This is to make it easier for producers to append values, e.g. as in
