@@ -42,10 +42,10 @@ export TESTDIR = $(T)
 .PHONY: check-%
 check-%:
 	$(MAKE) $(ALLCHECK_$*)
-	for case in $(TESTCASES_0); do ./check-generic.sh "$(ALLCHECK_$*)" $* 0 $$case $$case.$* $$case; done
-	for case in $(TESTCASES_1); do ./check-generic.sh "$(ALLCHECK_$*)" $* 1 $$case $$case.$* $$case; done
-	for case in $(TESTCASES_$*.0); do ./check-generic.sh "$(ALLCHECK_$*)" $* 0 $$case $$case $*.0; done
-	for case in $(TESTCASES_$*.1); do ./check-generic.sh "$(ALLCHECK_$*)" $* 1 $$case $$case $*.1; done
+	set -e; for case in $(TESTCASES_0); do ./check-generic.sh "$(ALLCHECK_$*)" $* 0 $$case $$case.$* $$case; done
+	set -e; for case in $(TESTCASES_1); do ./check-generic.sh "$(ALLCHECK_$*)" $* 1 $$case $$case.$* $$case; done
+	set -e; for case in $(TESTCASES_$*.0); do ./check-generic.sh "$(ALLCHECK_$*)" $* 0 $$case $$case $*.0; done
+	set -e; for case in $(TESTCASES_$*.1); do ./check-generic.sh "$(ALLCHECK_$*)" $* 1 $$case $$case $*.1; done
 
 make-afl-test-case = \
 	cat testcases/$(3).$(1).env testcases/$(3).in > afl-in-$(1)/$(3).in;
