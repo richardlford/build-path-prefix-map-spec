@@ -1,11 +1,12 @@
 all: spec.html
 
-%.xml: %.rst %.t.xml
+%.xml: %.rst %.t.xml Makefile
 	# ain't nobody got time to manually type XML tags
 	pandoc --template "$*.t.xml" -s "$<" -t docbook > "$@"
 
-%.html: %.xml %.xsl
+%.html: %.xml %.xsl fixup-footnotes.xsl
 	xmlto -x "$*.xsl" html-nochunks "$<"
+	xsltproc --html -o "$@" fixup-footnotes.xsl "$@"
 
 spec.rst: spec-main.rst spec-testcases.rst
 	cat $^ > "$@"

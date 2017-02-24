@@ -239,7 +239,7 @@ an executable test suite in `our git repository
 
 In the prescriptions below, statements of the form "E maps I to O" mean that
 when E is set as the value of ``BUILD_PATH_PREFIX_MAP``, then a compliant
-consumer, when implementing either algorithm 1 or 2 from *Applying the decoded
+consumer implementing either algorithm 1 or 2 from *Applying the decoded
 structure*, maps line-separated input paths I to line-separated output paths O.
 Where E is wrapped by ``b'`` and ``'``, it is to be interpreted as a sequence
 of bytes, represented in the same way as Python byte literals.
