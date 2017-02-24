@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+$if(comment)$
+<!-- This template was generated with `pandoc -D docbook` then hand-edited -->
+$endif$
+$if(mathml)$
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook EBNF Module V1.1CR1//EN"
+                  "http://www.oasis-open.org/docbook/xml/mathml/1.1CR1/dbmathml.dtd">
+$else$
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+                  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+$endif$
+<article>
+  <articleinfo>
+    <title><envar>BUILD_PATH_PREFIX_MAP</envar> specification</title>
+    <revhistory>
+      <revision>
+      <revnumber>1.0-DRAFT-DO-NOT-USE-YET</revnumber>
+        <date>24 February 2017</date>
+        <revremark>Initial version.</revremark>
+      </revision>
+    </revhistory>
+    <author>
+      <firstname>Ximin</firstname>
+      <surname>Luo</surname>
+      <affiliation>
+        <address><email>infinity0@debian.org</email></address>
+      </affiliation>
+    </author>
+  </articleinfo>
+$for(include-before)$
+$include-before$
+$endfor$
+$body$
+$for(include-after)$
+$include-after$
+$endfor$
+</article>

@@ -81,23 +81,23 @@ The encoding is as follows:
 
   Our recommended approach for a high-level language with string replace:
 
-  A. decoding:
+  A. Decoding:
 
      1. check elem does not match the regex ``/%[^#+.]|%$/g``, then
      2. ``elem.replace("%.", ":").replace("%+", "=").replace("%#", "%")``
 
-  B. encoding:
+  B. Encoding:
 
      1. ``elem.replace("%#", "%").replace("%+", "=").replace("%.", ":")``
 
   Our recommended approach for a low-level language without string replace:
 
-  A. decoding:
+  A. Decoding:
 
      - one single left-to-right pass with lookahead (e.g. our C example), or
      - one single left-to-right pass with lookbehind (e.g. our Rust example)
 
-  B. encoding:
+  B. Encoding:
 
      - We don't anticipate this to be a major use-case
 

@@ -1,7 +1,11 @@
 all: spec.html
 
-%.html: %.rst %.css
-	rst2html5 --stylesheet minimal.css,"$*.css" "$<" > "$@"
+%.xml: %.rst %.t.xml
+	# ain't nobody got time to manually type XML tags
+	pandoc --template "$*.t.xml" -s "$<" -t docbook > "$@"
+
+%.html: %.xml %.xsl
+	xmlto -x "$*.xsl" html-nochunks "$<"
 
 spec.rst: spec-main.rst spec-testcases.rst
 	cat $^ > "$@"
@@ -14,9 +18,6 @@ consume/$(T):
 spec-testcases.rst: consume/testcases-pecsplit.rst
 	cp "$<" "$@"
 
-spec.css: consume/testcases-rst.css
-	cp "$<" "$@"
-
 .PHONY: clean
 clean:
-	rm -f *.html spec.css spec-testcases.rst spec.rst
+	rm -f *.html spec-testcases.rst spec.rst
