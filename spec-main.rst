@@ -1,7 +1,9 @@
+TODO: add introduction, copyright, contributors
+
 Specification
 =============
 
-This specification describes an environment variable ``BUILD_PATH_PREFIX_MAP``
+This specification describes the environment variable ``BUILD_PATH_PREFIX_MAP``
 which may be used by build tools to generate reproducible output that does not
 include any paths that are dependent on the build-time filesystem layout.
 
@@ -23,8 +25,8 @@ Encoding and decoding the variable
 This section describes a data structure encoding, from a list-of-pairs where
 each pair holds two strings, into a single string.
 
-We use the phrases "left"- and "right end of the list", to respectively refer
-to the parts of the list that correspond to the left (start) and right (end)
+We use the phrases "left"- and "right end of the list", to refer to the parts
+of the list that respectively correspond to the left (start) and right (end)
 ends of the string that it was parsed from, and vice versa.
 
 On POSIX systems these strings are a sequence of 8-bit bytes. On Windows
@@ -45,15 +47,13 @@ The encoding is as follows:
 - The ``:`` character separates encoded list items from each other.
 
   Empty subsequences between ``:`` characters, or between a ``:`` character and
-  either the left or right end of the envvar, are valid and are ignored. [3]_
+  either the left or right end of the value, are valid and are ignored. [3]_
 
 - Each encoded list item contains exactly one ``=`` character, that separates
   encoded pair elements.
 
-  If there are zero or more than one ``=`` characters, this is a parse error
-  and the whole environment variable is invalid. [4]_ In this case, the program
-  should exit with an error code appropriate for the context, or if this is not
-  possible then it must communicate the error in some way to the caller.
+  If there are zero or more than one ``=`` characters, this is a parse error.
+  [4]_
 
   The encoded pair elements may be empty; this does not need special-casing if
   the rest of the document is implemented correctly.
@@ -69,15 +69,15 @@ The encoding is as follows:
 
   This encoding allows paths containing ``%``, ``=``, ``:`` to be mapped; since
   users may want to run their builds under such paths. However as a producer,
-  if this is not possible for your users (e.g. because you directly restrict
-  possible build paths) then you may avoid implementing this encoding logic.
+  if this is not possible for your consumers, for example because you directly
+  restrict the possible build paths, then you may omit this encoding logic.
 
-  Implementation notes: due to our choice of characters, there is flexibility
-  in the order in which these mappings may be applied; this is meant to ease
-  implementation in a variety of programming languages. The only restriction is
-  that the ``%`` → ``%#`` mapping for encoding must not be applied on
-  already-encoded %-substrings; and that the ``%+`` → ``=``, ``%.`` → ``:``
-  mappings for decoding must not be applied on already-decoded %-substrings.
+  Our choice of characters means there is flexibility in the order in which
+  these mappings can be applied. The only restriction is that the ``%`` →
+  ``%#`` mapping for encoding must not be applied on already-encoded
+  %-substrings; and that the ``%+`` → ``=``, ``%.`` → ``:`` mappings for
+  decoding must not be applied on already-decoded %-substrings. This is meant
+  to ease implementation in a variety of programming languages.
 
   Our recommended approach for a high-level language with string replace:
 
@@ -94,12 +94,17 @@ The encoding is as follows:
 
   A. Decoding:
 
-     - one single left-to-right pass with lookahead (e.g. our C example), or
-     - one single left-to-right pass with lookbehind (e.g. our Rust example)
+     - one single left-to-right pass with lookahead (e.g. see our C example), or
+     - one single left-to-right pass with lookbehind (e.g. see our Rust example)
 
   B. Encoding:
 
      - We don't anticipate this to be a major use-case
+
+In the event of parse errors, the whole value of the variable should be treated
+as invalid rather than silently using the "good" parts. The program should exit
+with an error code appropriate for the context, or if this is not possible then
+the parser must communicate the error in some way to the caller.
 
 
 Setting the encoded value
@@ -108,10 +113,10 @@ Setting the encoded value
 Producers SHOULD NOT overwrite existing values; instead they should append
 their new mappings onto the right of any existing value.
 
-Producers who build *general software* that uses this envvar, MUST NOT expect
+Producers who build *general software* that uses this variable, MUST NOT expect
 any special contracts on the output emitted by *general consumers* based on
 this variable - only that their output be reproducible when the build path
-changes and the value of this envvar is changed to match the new paths.
+changes and the value of this variable is changed to match the new paths.
 
 On the other hand, if you know you will only support a limited set of
 consumers, you may expect that they apply these mappings in specific ways.
@@ -132,9 +137,8 @@ the *source* prefix ends with a directory separator or not.
 
 We do not define "derived from" more specifically, since this may be different
 for different consumers (languages, buildsystems, etc), and a more specific
-definition might conflict with their idea of what that means.
-
-Consumers SHOULD implement one of the following algorithms:
+definition might conflict with their idea of what that means. Generally,
+consumers SHOULD implement one of the following algorithms:
 
 1. For each (source, target) prefix pair in the list-of-pairs, going from right
    to left: if the subject path starts with the source prefix, then replace
@@ -154,10 +158,10 @@ Notes and links
 ===============
 
 .. [1] In practice, this means any two byte sequences that are invalid UTF-8,
-    or ``wchar_t`` sequences that are invalid UTF-16, are decoded into distinct
-    application-level character string values. This is not satisfied by most
-    standard Unicode decoding strategies, which is to replace all invalid input
-    sequences with ``U+FFFD REPLACEMENT CHARACTER``.
+    or ``wchar_t`` sequences that are invalid UTF-16, must be decoded into
+    distinct application-level character string values. This is not satisfied
+    by most standard Unicode decoding strategies, which is to replace all
+    invalid input sequences with ``U+FFFD REPLACEMENT CHARACTER``.
 
 .. [2] Detailed implementation notes and advice are available on `our wiki page
     <https://wiki.debian.org/ReproducibleBuilds/BuildPathProposal#Implementation_notes>`_.
@@ -167,8 +171,8 @@ Notes and links
     The test vectors from this document's appendix are also available there.
 
 .. [3] This is to make it easier for producers to append values, e.g. as in
-    ``envvar += ":" + encoded_pair`` which would be valid even if envvar is
-    originally empty.
+    ``old_value += ":" + encoded_pair`` which would be valid even if the value
+    is originally empty.
 
 .. [4] This is to "fail early" in the cases that a naive producer does not
     encode characters like ``=`` but the build path or target path does
@@ -231,11 +235,11 @@ Test vectors
 ------------
 
 Here are test vectors for implementations to check their correctness. They are
-intended for guidance and *not* as a substitute to the above specification. In
-particular, it may be possible to match the behaviour described below exactly
-but still violate the specification. The vectors are also available as part of
-an executable test suite in `our git repository
+also available as part of an executable test suite in `our git repository
 <https://anonscm.debian.org/git/reproducible/standards.git/tree/build-path-prefix-map>`_.
+They are intended for guidance and *not* as a substitute to the above
+specification. In particular, it may be possible to match the behaviour
+described below exactly but still violate the specification.
 
 In the prescriptions below, statements of the form "E maps I to O" mean that
 when E is set as the value of ``BUILD_PATH_PREFIX_MAP``, then a compliant
