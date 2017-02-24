@@ -38,7 +38,7 @@ encoding them using a character encoding such as UTF-8 or UTF-16; or (b) if you
 must use a character encoding e.g. because your language's standard libraries
 force you to, then either it is total and injective over the system string type
 [1]_, or you MUST raise a parse error for inputs where it is undefined or not
-injective. See [2]_ for further details and guidance on how to do this.
+injective. (See [2]_ for further details and guidance on how to do this.)
 
 The encoding is as follows:
 
@@ -84,11 +84,11 @@ The encoding is as follows:
   A. decoding:
 
      1. check elem does not match the regex ``/%[^#+.]|%$/g``, then
-     2. ``elem.replace("%.", ':').replace("%+", '=').replace("%#", '%')``
+     2. ``elem.replace("%.", ":").replace("%+", "=").replace("%#", "%")``
 
   B. encoding:
 
-     1. ``elem.replace("%#", '%').replace("%+", '=').replace("%.", ':')``
+     1. ``elem.replace("%#", "%").replace("%+", "=").replace("%.", ":")``
 
   Our recommended approach for a low-level language without string replace:
 
@@ -161,9 +161,10 @@ Notes and links
 
 .. [2] Detailed implementation notes and advice are available on `our wiki page
     <https://wiki.debian.org/ReproducibleBuilds/BuildPathProposal#Implementation_notes>`_.
-    Example source code is also available on the above page, as well as in
-    runnable form in `our git repository
+    Example source code is also available there, as well as in runnable form in
+    `our git repository
     <https://anonscm.debian.org/git/reproducible/standards.git/tree/build-path-prefix-map>`_.
+    The test vectors from this document's appendix are also available there.
 
 .. [3] This is to make it easier for producers to append values, e.g. as in
     ``envvar += ":" + encoded_pair`` which would be valid even if envvar is
@@ -229,10 +230,17 @@ Appendix
 Test vectors
 ------------
 
-In the below, statements of the form "E maps I to O" means that when E is set
-as the value of ``BUILD_PATH_PREFIX_MAP``, then a compliant consumer, when
-implementing either algorithm 1 or 2 in "Applying the decoded structure",
-should map line-separated input paths I to line-separated output paths O.
+Here are test vectors for implementations to check their correctness. They are
+intended for guidance and *not* as a substitute to the above specification. In
+particular, it may be possible to match the behaviour described below exactly
+but still violate the specification. The vectors are also available as part of
+an executable test suite in `our git repository
+<https://anonscm.debian.org/git/reproducible/standards.git/tree/build-path-prefix-map>`_.
 
+In the prescriptions below, statements of the form "E maps I to O" mean that
+when E is set as the value of ``BUILD_PATH_PREFIX_MAP``, then a compliant
+consumer, when implementing either algorithm 1 or 2 from *Applying the decoded
+structure*, maps line-separated input paths I to line-separated output paths O.
 Where E is wrapped by ``b'`` and ``'``, it is to be interpreted as a sequence
 of bytes, represented in the same way as Python byte literals.
+

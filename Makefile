@@ -1,17 +1,17 @@
 all: spec.html
 
 %.html: %.rst %.css
-	pandoc -s --css "$*.css" "$<" > "$@"
+	rst2html5 --stylesheet minimal.css,"$*.css" "$<" > "$@"
 
 spec.rst: spec-main.rst spec-testcases.rst
 	cat $^ > "$@"
 
-T = testcases-rst-pecsplit.rst
+T = testcases-pecsplit.rst
 .PHONY: consume/$(T)
 consume/$(T):
 	$(MAKE) -C consume $(T)
 
-spec-testcases.rst: consume/testcases-rst-pecsplit.rst
+spec-testcases.rst: consume/testcases-pecsplit.rst
 	cp "$<" "$@"
 
 spec.css: consume/testcases-rst.css

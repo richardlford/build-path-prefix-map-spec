@@ -1,8 +1,4 @@
-p code {
+.literal > span.pre {
     white-space: normal;
     word-break: break-all;
-}
-
-pre, blockquote {
-    margin-left: 40px;
 }

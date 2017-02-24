@@ -22,9 +22,9 @@ dump_or_ref() {
 	if [ -h "$2" ]; then
 		local dst="$(readlink "$2")"
 		if [ "${dst%.out}" != "$dst" ]; then
-			print_section "${1}:" echo "(same as the output for Case '${dst%.out}')"
+			print_section "${1}:" echo "(same as the output for Case \"${dst%.out}\")"
 		elif [ "${dst%.in}" != "$dst" ]; then
-			print_section "${1}:" echo "(same as the input for Case '${dst%.in}')"
+			print_section "${1}:" echo "(same as the input for Case \"${dst%.in}\")"
 		else
 			echo >&2 "ERROR: unknown symlink"
 			exit 1
@@ -41,11 +41,11 @@ case="$2"
 	envfile="${T}${3}.env"
 
 	if [ -s "$output" ]; then
-		dump_or_ref "Case '$2', **${5}**"': ``'"$(./make_printable.py "$envfile")"'`` maps' "$input"
+		dump_or_ref "Case \"$2\", **${5}**"': ``'"$(./make_printable.py "$envfile")"'`` maps' "$input"
 		dump_or_ref 'to' "$output"
 
 	else
-		echo "Case '$2', **${5}**"': ``'"$(./make_printable.py "$envfile")"'``'
+		echo "Case \"$2\", **${5}**"': ``'"$(./make_printable.py "$envfile")"'``'
 		echo
 
 	fi

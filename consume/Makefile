@@ -37,25 +37,25 @@ all: $(ALL_SOURCE:%=%.out)
 
 .PHONY: check testcases-rst
 check: $(ALL_FORMATS:%=check-%)
-testcases-rst: $(ALL_FORMATS:%=testcases-rst-%.html)
+testcases-html: $(ALL_FORMATS:%=testcases-%.html)
 
 export TESTDIR = $(T)
-check-%:
+check-%: check.sh
 	$(MAKE) $(ALLCHECK_$*)
 	set -e; for case in $(TESTCASES_0); do ./check.sh "$(ALLCHECK_$*)" $* 0 $$case $$case.$* $$case; done
 	set -e; for case in $(TESTCASES_1); do ./check.sh "$(ALLCHECK_$*)" $* 1 $$case $$case.$* $$case; done
 	set -e; for case in $(TESTCASES_$*.0); do ./check.sh "$(ALLCHECK_$*)" $* 0 $$case $$case $*.0; done
 	set -e; for case in $(TESTCASES_$*.1); do ./check.sh "$(ALLCHECK_$*)" $* 1 $$case $$case $*.1; done
 
-testcases-rst-%.html: testcases-rst-%.rst
-	pandoc -s --css testcases-rst.css "$<" > "$@"
+testcases-%.html: testcases-%.rst testcases-rst.css
+	rst2html5 --stylesheet minimal.css,testcases-rst.css "$<" > "$@"
 
-testcases-rst-%.rst: $(wildcard $(T)/*) Makefile
+testcases-%.rst: testcases-rst.sh $(wildcard $(T)/*) Makefile
 	rm -f "$@" "$@.tmp" && touch "$@.tmp"
-	set -e; for case in $(TESTCASES_0); do ./testcases-rst.sh $* $$case $$case.$* $$case valid; done >> "$@.tmp"
-	set -e; for case in $(TESTCASES_1); do ./testcases-rst.sh $* $$case $$case.$* $$case invalid; done >> "$@.tmp"
-	set -e; for case in $(TESTCASES_$*.0); do ./testcases-rst.sh $* $$case $$case $*.0 valid; done >> "$@.tmp"
-	set -e; for case in $(TESTCASES_$*.1); do ./testcases-rst.sh $* $$case $$case $*.1 invalid; done >> "$@.tmp"
+	set -e; for case in $(TESTCASES_0); do ./testcases-rst.sh $* $$case $$case.$* $$case "decode valid"; done >> "$@.tmp"
+	set -e; for case in $(TESTCASES_1); do ./testcases-rst.sh $* $$case $$case.$* $$case "decode invalid"; done >> "$@.tmp"
+	set -e; for case in $(TESTCASES_$*.0); do ./testcases-rst.sh $* $$case $$case $*.0 "decode valid"; done >> "$@.tmp"
+	set -e; for case in $(TESTCASES_$*.1); do ./testcases-rst.sh $* $$case $$case $*.1 "decode invalid"; done >> "$@.tmp"
 	mv "$@.tmp" "$@"
 
 make-afl-test-case = \
