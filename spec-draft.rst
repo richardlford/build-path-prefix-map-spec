@@ -37,21 +37,21 @@ operate on the system string types described above *without* also decoding or
 encoding them using a character encoding such as UTF-8 or UTF-16; or (b) if you
 must use a character encoding e.g. because your language's standard libraries
 force you to, then either it is total and injective over the system string type
-[0]_, or you MUST raise a parse error for inputs where it is undefined or not
-injective. See [TODO link] for further details and guidance on how to do this.
+[1]_, or you MUST raise a parse error for inputs where it is undefined or not
+injective. See [2]_ for further details and guidance on how to do this.
 
 The encoding is as follows:
 
 - The ``:`` character separates encoded list items from each other.
 
   Empty subsequences between ``:`` characters, or between a ``:`` character and
-  either the left or right end of the envvar, are valid and are ignored. [1]_
+  either the left or right end of the envvar, are valid and are ignored. [3]_
 
 - Each encoded list item contains exactly one ``=`` character, that separates
   encoded pair elements.
 
   If there are zero or more than one ``=`` characters, this is a parse error
-  and the whole environment variable is invalid. [2]_ In this case, the program
+  and the whole environment variable is invalid. [4]_ In this case, the program
   should exit with an error code appropriate for the context, or if this is not
   possible then it must communicate the error in some way to the caller.
 
@@ -156,30 +156,26 @@ Test vectors
 TODO
 
 
-External links
-==============
+Notes and links
+===============
 
-Detailed implementation notes and advice are available at
-`<https://wiki.debian.org/ReproducibleBuilds/BuildPathProposal>`_.
-
-Example source code is available on the above page, as well as in runnable form
-on `<https://github.com/infinity0/rb-prefix-map>`_. FIXME use alioth link
-
-
-Notes
-=====
-
-.. [0] In practice, this means any two byte sequences that are invalid UTF-8,
+.. [1] In practice, this means any two byte sequences that are invalid UTF-8,
     or ``wchar_t`` sequences that are invalid UTF-16, are decoded into distinct
     application-level character string values. This is not satisfied by most
     standard Unicode decoding strategies, which is to replace all invalid input
     sequences with ``U+FFFD REPLACEMENT CHARACTER``.
 
-.. [1] This is to make it easier for producers to append values, e.g. as in
+.. [2] Detailed implementation notes and advice are available on `our wiki page
+    <https://wiki.debian.org/ReproducibleBuilds/BuildPathProposal#Implementation_notes>`_.
+    Example source code is also available on the above page, as well as in
+    runnable form in `our git repository
+    <https://anonscm.debian.org/git/reproducible/standards.git/tree/build-path-prefix-map>`_.
+
+.. [3] This is to make it easier for producers to append values, e.g. as in
     ``envvar += ":" + encoded_pair`` which would be valid even if envvar is
     originally empty.
 
-.. [2] This is to "fail early" in the cases that a naive producer does not
+.. [4] This is to "fail early" in the cases that a naive producer does not
     encode characters like ``=`` but the build path or target path does
     actually contain them.
 
@@ -189,8 +185,6 @@ References
 
 POSIX system strings
 --------------------
-
-References:
 
 - `Definitions (no HTTPS)
   <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html>`_
@@ -215,8 +209,6 @@ deprecated (no HTTPS) <http://unicode.org/faq/utf_bom.html#utf16-1>`_.
 So in practice, user code should not assume that these system strings are valid
 UTF-16, and should be able to deal with invalid UTF-16 strings. The easiest way
 to do this, is to treat them as opaque 16-bit sequences with no encoding.
-
-References:
 
 - `File Management > About File Management > Creating, Deleting, and Maintaining Files
   <https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx>`_
