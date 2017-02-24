@@ -1,4 +1,7 @@
 /consume/*.out
+/consume/*.rst
+/consume/*.html
 /consume/afl-in-*
 /consume/afl-out-*
 /produce/*.html
+/*.html

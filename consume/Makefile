@@ -20,7 +20,7 @@ RUSTC ?= rustc
 # 1 key, e.g. "0" or "pecsplit.0"
 # 2 suffix that indicates a test, e.g. "in" or "env"
 find_testcases = \
-	TESTCASES_$(1) = $(patsubst $(T)$(1).%.$(2),$(1).%,$(wildcard $(T)$(1).*.$(2)))
+	TESTCASES_$(1) = $(sort $(patsubst $(T)$(1).%.$(2),$(1).%,$(wildcard $(T)$(1).*.$(2))))
 $(eval $(call find_testcases,0,in))
 $(eval $(call find_testcases,1,in))
 $(foreach format,$(ALL_FORMATS),$(eval $(call find_testcases,$(format).0,env)))
@@ -35,17 +35,28 @@ all: $(ALL_SOURCE:%=%.out)
 %.rs.out: %.rs
 	$(RUSTC) -W warnings -o "$@" "$<"
 
-.PHONY: check
+.PHONY: check testcases-rst
 check: $(ALL_FORMATS:%=check-%)
+testcases-rst: $(ALL_FORMATS:%=testcases-rst-%.html)
 
 export TESTDIR = $(T)
-.PHONY: check-%
 check-%:
 	$(MAKE) $(ALLCHECK_$*)
-	set -e; for case in $(TESTCASES_0); do ./check-generic.sh "$(ALLCHECK_$*)" $* 0 $$case $$case.$* $$case; done
-	set -e; for case in $(TESTCASES_1); do ./check-generic.sh "$(ALLCHECK_$*)" $* 1 $$case $$case.$* $$case; done
-	set -e; for case in $(TESTCASES_$*.0); do ./check-generic.sh "$(ALLCHECK_$*)" $* 0 $$case $$case $*.0; done
-	set -e; for case in $(TESTCASES_$*.1); do ./check-generic.sh "$(ALLCHECK_$*)" $* 1 $$case $$case $*.1; done
+	set -e; for case in $(TESTCASES_0); do ./check.sh "$(ALLCHECK_$*)" $* 0 $$case $$case.$* $$case; done
+	set -e; for case in $(TESTCASES_1); do ./check.sh "$(ALLCHECK_$*)" $* 1 $$case $$case.$* $$case; done
+	set -e; for case in $(TESTCASES_$*.0); do ./check.sh "$(ALLCHECK_$*)" $* 0 $$case $$case $*.0; done
+	set -e; for case in $(TESTCASES_$*.1); do ./check.sh "$(ALLCHECK_$*)" $* 1 $$case $$case $*.1; done
+
+testcases-rst-%.html: testcases-rst-%.rst
+	pandoc -s --css testcases-rst.css "$<" > "$@"
+
+testcases-rst-%.rst: $(wildcard $(T)/*) Makefile
+	rm -f "$@" "$@.tmp" && touch "$@.tmp"
+	set -e; for case in $(TESTCASES_0); do ./testcases-rst.sh $* $$case $$case.$* $$case valid; done >> "$@.tmp"
+	set -e; for case in $(TESTCASES_1); do ./testcases-rst.sh $* $$case $$case.$* $$case invalid; done >> "$@.tmp"
+	set -e; for case in $(TESTCASES_$*.0); do ./testcases-rst.sh $* $$case $$case $*.0 valid; done >> "$@.tmp"
+	set -e; for case in $(TESTCASES_$*.1); do ./testcases-rst.sh $* $$case $$case $*.1 invalid; done >> "$@.tmp"
+	mv "$@.tmp" "$@"
 
 make-afl-test-case = \
 	cat testcases/$(3).$(1).env testcases/$(3).in > afl-in-$(1)/$(3).in;
@@ -77,6 +88,7 @@ reset-fuzz-%:
 clean:
 	rm -f $(ALL_SOURCE:%=%.out)
 	rm -rf $(ALL_FORMATS:%=afl-in-%)
+	rm -f *.rst *.html
 
 .PHONY: clean-all
 clean-all: clean $(ALL_SOURCE:%=reset-fuzz-%)

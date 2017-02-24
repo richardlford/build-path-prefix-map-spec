@@ -99,7 +99,7 @@ The encoding is as follows:
 
   B. encoding:
 
-     we don't anticipate this to be a major use-case
+     - We don't anticipate this to be a major use-case
 
 
 Setting the encoded value
@@ -150,12 +150,6 @@ Consumers SHOULD implement one of the following algorithms:
    This has more robust semantics but is slightly more complex to implement.
 
 
-Test vectors
-============
-
-TODO
-
-
 Notes and links
 ===============
 
@@ -188,7 +182,7 @@ POSIX system strings
 
 - `Definitions (no HTTPS)
   <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html>`_
-  - see "Pathname", "String" and "Byte".
+  -- see "Pathname", "String" and "Byte".
 
 - `Environment Variables (no HTTPS)
   <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap08.html>`_
@@ -227,3 +221,18 @@ to do this, is to treat them as opaque 16-bit sequences with no encoding.
   This often-cited page is not actually relevant to filesystem paths or
   environment variable values, and rather instead refers to how Windows
   applications deal with userland, not system, character data.
+
+
+Appendix
+============
+
+Test vectors
+------------
+
+In the below, statements of the form "E maps I to O" means that when E is set
+as the value of ``BUILD_PATH_PREFIX_MAP``, then a compliant consumer, when
+implementing either algorithm 1 or 2 in "Applying the decoded structure",
+should map line-separated input paths I to line-separated output paths O.
+
+Where E is wrapped by ``b'`` and ``'``, it is to be interpreted as a sequence
+of bytes, represented in the same way as Python byte literals.
