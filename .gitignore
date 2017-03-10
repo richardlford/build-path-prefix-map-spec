@@ -4,4 +4,9 @@
 /consume/afl-in-*
 /consume/afl-out-*
 /produce/*.html
+
+/*.rst
+!/*.in.rst
+/*.xml
+!/*.in.xml
 /*.html

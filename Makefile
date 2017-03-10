@@ -1,14 +1,14 @@
 all: spec.html
 
-%.xml: %.rst %.t.xml Makefile
-	# ain't nobody got time to manually type XML tags
-	pandoc --template "$*.t.xml" -s "$<" -t docbook > "$@"
-
 %.html: %.xml %.xsl fixup-footnotes.xsl
 	xmlto -x "$*.xsl" html-nochunks "$<"
 	xsltproc --html -o "$@" fixup-footnotes.xsl "$@"
 
-spec.rst: spec-main.rst spec-testcases.rst
+%.xml: %.rst %.in.xml Makefile
+	# ain't nobody got time to manually type XML tags
+	pandoc --template "$*.in.xml" -s "$<" -t docbook > "$@"
+
+spec.rst: spec.in.rst spec-testcases.rst
 	cat $^ > "$@"
 
 T = testcases-pecsplit.rst
@@ -21,4 +21,4 @@ spec-testcases.rst: consume/testcases-pecsplit.rst
 
 .PHONY: clean
 clean:
-	rm -f *.html spec-testcases.rst spec.rst
+	rm -f *.html spec.xml spec-testcases.rst spec.rst
