@@ -1,4 +1,4 @@
-TODO: add introduction, copyright, contributors
+TODO: add introduction
 
 Specification
 =============
@@ -226,6 +226,43 @@ to do this, is to treat them as opaque 16-bit sequences with no encoding.
   This often-cited page is not actually relevant to filesystem paths or
   environment variable values, and rather instead refers to how Windows
   applications deal with userland, not system, character data.
+
+
+Copyright
+=========
+
+Copyright © 2017 See Contributors List
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+Contributors
+============
+
+Daniel Kahn Gillmor
+
+Daniel Shahaf
+
+HW42
+
+Ian Jackson
+
+Ximin Luo
 
 
 Appendix
