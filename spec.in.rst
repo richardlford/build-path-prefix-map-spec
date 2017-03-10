@@ -167,7 +167,7 @@ Notes and links
     <https://wiki.debian.org/ReproducibleBuilds/BuildPathProposal#Implementation_notes>`_.
     Example source code is also available there, as well as in runnable form in
     `our git repository
-    <https://anonscm.debian.org/git/reproducible/standards.git/tree/build-path-prefix-map>`_.
+    <https://anonscm.debian.org/cgit/reproducible/build-path-prefix-map-spec.git>`_.
     The test vectors from this document's appendix are also available there.
 
 .. [3] This is to make it easier for producers to append values, e.g. as in
@@ -203,7 +203,7 @@ Windows system strings
 Windows strings are commonly advertised as "UTF-16", however for environment
 variable values and filesystem paths the system APIs do not enforce validity of
 the 16-bit strings passed to it. In other words, it is UCS-2, but this term `is
-deprecated (no HTTPS) <http://unicode.org/faq/utf_bom.html#utf16-1>`_.
+deprecated (no HTTPS) <http://unicode.org/faq/utf_bom.html#utf16-11>`_.
 
 So in practice, user code should not assume that these system strings are valid
 UTF-16, and should be able to deal with invalid UTF-16 strings. The easiest way
@@ -273,7 +273,7 @@ Test vectors
 
 Here are test vectors for implementations to check their correctness. They are
 also available as part of an executable test suite in `our git repository
-<https://anonscm.debian.org/git/reproducible/standards.git/tree/build-path-prefix-map>`_.
+<https://anonscm.debian.org/cgit/reproducible/build-path-prefix-map-spec.git>`_.
 They are intended for guidance and *not* as a substitute to the above
 specification. In particular, it may be possible to match the behaviour
 described below exactly but still violate the specification.
