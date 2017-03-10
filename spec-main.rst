@@ -65,7 +65,7 @@ The encoding is as follows:
   3. ``:`` → ``%.``
 
   When decoding, ``%`` characters at the end of a string are a parse error, as
-  are ``%[X]`` substrings where ``[X]`` is any character not in ``#+.``.
+  are ``%X`` substrings where ``X`` is any character not in ``#+.``.
 
   This encoding allows paths containing ``%``, ``=``, ``:`` to be mapped; since
   users may want to run their builds under such paths. However as a producer,
@@ -83,7 +83,7 @@ The encoding is as follows:
 
   A. Decoding:
 
-     1. check elem does not match the regex ``/%[^#+.]|%$/g``, then
+     1. check that ``elem`` does not match the regex ``/%[^#+.]|%$/g``, then
      2. ``elem.replace("%.", ":").replace("%+", "=").replace("%#", "%")``
 
   B. Encoding:
@@ -115,7 +115,7 @@ their new mappings onto the right of any existing value.
 
 Producers who build *general software* that uses this variable, MUST NOT expect
 any special contracts on the output emitted by *general consumers* based on
-this variable - only that their output be reproducible when the build path
+this variable ― only that their output be reproducible when the build path
 changes and the value of this variable is changed to match the new paths.
 
 On the other hand, if you know you will only support a limited set of
@@ -174,7 +174,7 @@ Notes and links
     ``old_value += ":" + encoded_pair`` which would be valid even if the value
     is originally empty.
 
-.. [4] This is to "fail early" in the cases that a naive producer does not
+.. [4] This is to "fail early" in case a naive producer does not
     encode characters like ``=`` but the build path or target path does
     actually contain them.
 
