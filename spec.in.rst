@@ -1,22 +1,75 @@
-TODO: add introduction
+Introduction
+============
+
+This specification describes the environment variable ``BUILD_PATH_PREFIX_MAP``
+for build tools to exchange information about the build-time filesystem layout,
+to generate reproducible output where all embedded paths are independent of
+that layout.
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+"SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
+interpreted as described in RFC 2119.
+
+The canonical URI for this document is:
+`<https://reproducible-builds.org/specs/build-path-prefix-map/>`_.
+
+
+Motivation
+==========
+
+Software packages are often unreproducible because they embed build-time paths
+into generated files. At the time of writing, this affects an estimated 15-20%
+of 25000 Debian packages being unreproducible when the build path is varied.
+
+These paths do not exist at runtime, nor do they exist in the source code. An
+improvement is to use relative paths; if the source is then modified, the
+binaries will change by design. These paths can also be easily used as runtime
+paths, for example to access source-code packages that are installed into
+standard paths, for IDEs and debuggers.
+
+This requires knowledge of where the top-level source directories are, and
+where (if any) the top-level out-of-tree-build directories are. However, some
+toolchains were not designed to make this information available to the
+lower-level tools that generate those build outputs with embedded paths.
+
+This specification therefore defines a distribution-agnostic standard for
+lower-level tools to consume this information from higher-level tools.
+
+For more discussion on the mechanism of environment variables, see our page on
+`Standard Environment Variables
+<https://wiki.debian.org/ReproducibleBuilds/StandardEnvironmentVariables>`_.
+Other mechanisms were also explored, but they were not completely effective and
+only fixed some cases of the issue whilst generating new cases. For example,
+automatically setting GCC's ``-fdebug-prefix-map`` option does not fix other
+sources of irreproducibility such as ``__FILE__``, and in some packages the
+option itself is saved into other parts of the build output by another tool.
+
+For more information on Reproducible Builds in general, include its motivation
+and its uses, see `<https://reproducible-builds.org/>`_.
+
 
 Specification
 =============
 
-This specification describes the environment variable ``BUILD_PATH_PREFIX_MAP``
-which may be used by build tools to generate reproducible output that does not
-include any paths that are dependent on the build-time filesystem layout.
+Overview
+--------
+
+The environment variable ``BUILD_PATH_PREFIX_MAP`` represents an ordered map
+that associates path prefixes that exist on the build-time filesystem, with
+path prefixes that should replace them in the build output. We use the
+following terms:
 
 A *producer* is a program that knows how to determine appropriate values for
-this environment variable, such as a top-level distribution package builder,
-and which can then pass these values to child processes that consume them.
+the map, and can pass this information to lower-level build tools. For example,
+a distribution's top-level package builder, or a high-level buildsystem.
 
-A *consumer* is a program that relies on appropriate values for this variable
-to be set by a higher level build tool, and which then can generate output that
-is reproducible, independent of the filesystem layout of the build machine.
+A *consumer* is a program that generates output that contains paths, but does
+not by itself know enough information about the filesystem layout to be able to
+appropriately strip the build-time specific parts of those paths. Instead, it
+relies on another tool to pass this information in. For example, a C compiler.
 
-The actual value of this environment variable MUST NOT be saved into any output
-meant to form part of a reproducible binary artefact.
+The value of the variable MUST NOT be saved as-is into any output meant to form
+part of a reproducible binary artefact.
 
 
 Encoding and decoding the variable
@@ -25,7 +78,7 @@ Encoding and decoding the variable
 This section describes a data structure encoding, from a list-of-pairs where
 each pair holds two strings, into a single string.
 
-We use the phrases "left"- and "right end of the list", to refer to the parts
+We use the phrases *left*- and *right end of the list*, to refer to the parts
 of the list that respectively correspond to the left (start) and right (end)
 ends of the string that it was parsed from, and vice versa.
 
@@ -102,9 +155,9 @@ The encoding is as follows:
      - We don't anticipate this to be a major use-case
 
 In the event of parse errors, the whole value of the variable should be treated
-as invalid rather than silently using the "good" parts. The program should exit
-with an error code appropriate for the context, or if this is not possible then
-the parser must communicate the error in some way to the caller.
+as invalid rather than silently using only the "good" parts. The program should
+exit with an error code appropriate for the context, or if this is not possible
+then the parser must communicate the error in some way to the caller.
 
 
 Setting the encoded value
@@ -129,8 +182,8 @@ Applying the decoded structure
 
 Consumers MUST ensure that, at minimum: for all (*source*, *target*) prefix
 pairs in the parsed list, with rightmost pairs taking priority: strings in the
-final build output, that represent build-time paths derived from "source",
-instead appear to represent potential run-time paths derived from "target".
+final build output, that represent build-time paths derived from *source*,
+instead appear to represent potential run-time paths derived from *target*.
 
 As a consequence, consumers MUST apply mappings as above, regardless of whether
 the *source* prefix ends with a directory separator or not.
