@@ -1,6 +1,6 @@
 SPEC = build-path-prefix-map-spec
 
-all: $(SPEC).html check-produce check-consume
+all: check-produce check-consume $(SPEC).html
 
 %.html: %.xml %.xsl fixup-footnotes.xsl
 	xmlto -x "$*.xsl" html-nochunks "$<"
@@ -25,10 +25,14 @@ $(SPEC)-testcases.rst: consume/testcases-pecsplit.rst
 check-consume:
 	cd consume && $(MAKE) check
 
+.PHONY: clean-consume
+clean-consume:
+	cd consume && $(MAKE) clean
+
 .PHONY: check-produce
 check-produce:
 	cd produce && ./test-all.sh
 
 .PHONY: clean
-clean:
+clean: clean-consume
 	rm -f *.html $(SPEC).xml $(SPEC)-testcases.rst $(SPEC).rst

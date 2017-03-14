@@ -30,7 +30,7 @@ $(foreach format,$(ALL_FORMATS),$(eval $(call find_testcases,$(format).1,env)))
 all: $(ALL_SOURCE:%=%.out)
 
 %.c.out: %.c prefix_map.h
-	$(CC) -Wall -o "$@" "$<"
+	$(CC) -std=c11 -Werror -o "$@" "$<"
 
 %.rs.out: %.rs
 	$(RUSTC) -W warnings -o "$@" "$<"

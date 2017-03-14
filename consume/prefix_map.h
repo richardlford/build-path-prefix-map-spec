@@ -1,4 +1,7 @@
-/* This file also contains C code, in a real implementation it would be split. */
+/* This file also contains implementation code, for our convenience. In a real
+ * program it would be split into a separate .c file, possibly several. */
+
+#define _POSIX_C_SOURCE 200809L
 
 /* Some memory management primitives, basically copied from GCC. */
 
