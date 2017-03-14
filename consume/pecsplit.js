@@ -12,7 +12,7 @@ var parse_prefix_map = function(x) {
   return (x || "").split(/:/g).filter(Boolean).map(function(part) {
     var tuples = part.split(/=/g).map(unquote);
     if (tuples.length !== 2)
-      throw "invalid value: not a pair: " + pair;
+      throw "invalid value: not a pair: " + tuples;
     return tuples;
   });
 };
