@@ -22,10 +22,9 @@ into generated files. At the time of writing, this affects an estimated 15-20%
 of 25000 Debian packages being unreproducible when the build path is varied.
 
 These paths do not exist at runtime, nor do they exist in the source code. An
-improvement is to use relative paths; if the source is then modified, the
-binaries will change by design. These paths can also be easily used as runtime
-paths, for example to access source-code packages that are installed into
-standard paths, for IDEs and debuggers.
+improvement is to use relative paths that depend only on the source layout.
+These paths can also be easily used as runtime paths, for example to access
+source-code packages installed into standard paths, for IDEs and debuggers.
 
 This requires knowledge of where the top-level source directories are, and
 where (if any) the top-level out-of-tree-build directories are. However, some
