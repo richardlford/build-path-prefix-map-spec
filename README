@@ -1,0 +1,17 @@
+build-path-prefix-map-spec
+===========================
+
+This repository contains the BUILD_PATH_PREFIX_MAP specification.
+
+To discuss the specification, you may use the reproducible-builds general
+mailing list:
+
+   https://lists.reproducible-builds.org/listinfo/rb-general
+
+
+How to report issues
+====================
+
+Issues should also be reported to the reproducible-builds general mailing list:
+
+   https://lists.reproducible-builds.org/listinfo/rb-general
