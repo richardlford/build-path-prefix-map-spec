@@ -43,7 +43,7 @@ struct prefix_maps
  * Returns 0 on failure and 1 on success.
  */
 int
-add_prefix_map (const char *old_prefix, const char *new_prefix,
+add_prefix_map (const char *new_prefix, const char *old_prefix,
 		struct prefix_maps *maps)
 {
   struct prefix_map *map = XNEW (struct prefix_map);

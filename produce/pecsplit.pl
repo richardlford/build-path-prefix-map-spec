@@ -14,7 +14,7 @@ sub pfmap_enquote {
 
 $ENV{"BUILD_PATH_PREFIX_MAP"} = sprintf("%s:%s=%s",
 	$ENV{"BUILD_PATH_PREFIX_MAP"},
-	pfmap_enquote($ENV{"NEWSRC"}),
-	pfmap_enquote($ENV{"NEWDST"}));
+	pfmap_enquote($ENV{"NEWDST"}),
+	pfmap_enquote($ENV{"NEWSRC"}));
 
 exec @ARGV;

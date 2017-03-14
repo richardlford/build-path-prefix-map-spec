@@ -21,8 +21,8 @@ var parse_prefix_map = function(x) {
 
 var map_prefix = function(string, pm) {
   for (var i = pm.length - 1; i >= 0; --i) {;
-    var src = pm[i][0];
-    var dst = pm[i][1];
+    var dst = pm[i][0];
+    var src = pm[i][1];
     if (string.indexOf(src) === 0) {
       return dst + string.substr(src.length);
     }

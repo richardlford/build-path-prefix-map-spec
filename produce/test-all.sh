@@ -22,7 +22,7 @@ test_mapping() {
 }
 
 test_mapping 'foo' 'bar' \
-	'foo=bar'
+	'bar=foo'
 
 test_mapping '/a/b=yyy' 'libbar-3-bison++_41:10.5-3~rc1pre3+dfsg1.1-3nmu1+b4' \
-	'/a/b%+yyy=libbar-3-bison++_41%.10.5-3~rc1pre3+dfsg1.1-3nmu1+b4'
+	'libbar-3-bison++_41%.10.5-3~rc1pre3+dfsg1.1-3nmu1+b4=/a/b%+yyy'

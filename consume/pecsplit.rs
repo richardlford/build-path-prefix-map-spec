@@ -54,9 +54,9 @@ fn decode(prefix_str: Option<OsString>) -> Result<Vec<(PathBuf, PathBuf)>, &'sta
         Err("either too few or too many '='")
       } else {
         // TODO: windows
-        let src = OsString::from_vec(try!(dequote(tuple[0])));
-        let dst = OsString::from_vec(try!(dequote(tuple[1])));
-        Ok((PathBuf::from(src), PathBuf::from(dst)))
+        let dst = OsString::from_vec(try!(dequote(tuple[0])));
+        let src = OsString::from_vec(try!(dequote(tuple[1])));
+        Ok((PathBuf::from(dst), PathBuf::from(src)))
       }
     })
     .collect::<Result<Vec<_>, _>>()
@@ -66,7 +66,7 @@ fn decode(prefix_str: Option<OsString>) -> Result<Vec<(PathBuf, PathBuf)>, &'sta
 
 fn map_prefix(path: PathBuf, pm: &Vec<(PathBuf, PathBuf)>) -> PathBuf {
   for pair in pm.iter().rev() {
-    let (ref src, ref dst) = *pair;
+    let (ref dst, ref src) = *pair;
     if path.starts_with(src) {
       /* FIXME: this is different from what our other language examples do;
        * rust's [PathBuf.starts_with] only matches whole components. however

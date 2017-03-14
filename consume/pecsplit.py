@@ -14,12 +14,12 @@ def _dequote(part):
 def decode(prefix_str):
   tuples = (part.split("=") for part in prefix_str.split(":") if part)
   # Will raise if any tuple can't be destructured into a pair
-  return [(_dequote(src), _dequote(dst)) for src, dst in tuples]
+  return [(_dequote(dst), _dequote(src)) for dst, src in tuples]
 
 # Applying the variable
 
 def map_prefix(string, pm):
-  for src, dst in reversed(pm):
+  for dst, src in reversed(pm):
     if string.startswith(src):
       return dst + string[len(src):]
   return string

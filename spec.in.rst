@@ -55,9 +55,9 @@ Overview
 --------
 
 The environment variable ``BUILD_PATH_PREFIX_MAP`` represents an ordered map
-that associates path prefixes that exist on the build-time filesystem, with
-path prefixes that should replace them in the build output. We use the
-following terms:
+that associates reproducible path prefixes that may appear in the build output,
+with path prefixes that exist on the build-time filesystem that must not appear
+in the build output. We use the following terms:
 
 A *producer* is a program that knows how to determine appropriate values for
 the map, and can pass this information to lower-level build tools. For example,
@@ -166,6 +166,9 @@ Setting the encoded value
 Producers SHOULD NOT overwrite existing values; instead they should append
 their new mappings onto the right of any existing value.
 
+Each individual mapping has the reproducible *target* path prefix on the left,
+and the unreproducible *source* path prefix on the right.
+
 Producers who build *general software* that uses this variable, MUST NOT expect
 any special contracts on the output emitted by *general consumers* based on
 this variable ― only that their output be reproducible when the build path
@@ -180,7 +183,7 @@ See also the requirements for consumers in the next part for guidance.
 Applying the decoded structure
 ------------------------------
 
-Consumers MUST ensure that, at minimum: for all (*source*, *target*) prefix
+Consumers MUST ensure that, at minimum: for all (*target*, *source*) prefix
 pairs in the parsed list, with rightmost pairs taking priority: strings in the
 final build output, that represent build-time paths derived from *source*,
 instead appear to represent potential run-time paths derived from *target*.
@@ -193,10 +196,10 @@ for different consumers (languages, buildsystems, etc), and a more specific
 definition might conflict with their idea of what that means. Generally,
 consumers SHOULD implement one of the following algorithms:
 
-1. For each (source, target) prefix pair in the list-of-pairs, going from right
-   to left: if the subject path starts with the source prefix, then replace
-   this occurence with the target prefix, and return this new path, ignoring
-   any pairs further left in the list.
+1. For each (*target*, *source*) prefix pair in the list-of-pairs, going from
+   right to left: if the subject path starts with the source prefix, then
+   replace this occurence with the target prefix, and return this new path,
+   ignoring any pairs further left in the list.
 
 2. As in (1) but with "starts with" replaced by "starts with, restricted to
    whole-path components". So for example,
@@ -205,6 +208,10 @@ consumers SHOULD implement one of the following algorithms:
    - ``/path/to/aa/b/c`` does not "start with" ``/path/to/a``
 
    This has more robust semantics but is slightly more complex to implement.
+
+Consumers MAY for historical reasons internally store the map with the prefix
+pairs flipped as in (*source*, *target*), instead of (*target*, *source*) as
+described above. New code should prefer the latter representation.
 
 
 Notes and links
