@@ -140,7 +140,7 @@ The encoding is as follows:
 
   B. Encoding:
 
-     1. ``elem.replace("%#", "%").replace("%+", "=").replace("%.", ":")``
+     1. ``elem.replace("%", "%#").replace("=", "%+").replace(":", "%.")``
 
   Our recommended approach for a low-level language without string replace:
 
