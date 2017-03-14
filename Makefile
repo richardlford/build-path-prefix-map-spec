@@ -1,4 +1,6 @@
-all: spec.html
+SPEC = build-path-prefix-map-spec
+
+all: $(SPEC).html check-produce check-consume
 
 %.html: %.xml %.xsl fixup-footnotes.xsl
 	xmlto -x "$*.xsl" html-nochunks "$<"
@@ -8,7 +10,7 @@ all: spec.html
 	# ain't nobody got time to manually type XML tags
 	pandoc --template "$*.in.xml" -s "$<" -t docbook > "$@"
 
-spec.rst: spec.in.rst spec-testcases.rst
+$(SPEC).rst: $(SPEC).in.rst $(SPEC)-testcases.rst
 	cat $^ > "$@"
 
 T = testcases-pecsplit.rst
@@ -16,9 +18,17 @@ T = testcases-pecsplit.rst
 consume/$(T):
 	$(MAKE) -C consume $(T)
 
-spec-testcases.rst: consume/testcases-pecsplit.rst
+$(SPEC)-testcases.rst: consume/testcases-pecsplit.rst
 	cp "$<" "$@"
+
+.PHONY: check-consume
+check-consume:
+	cd consume && $(MAKE) check
+
+.PHONY: check-produce
+check-produce:
+	cd produce && ./test-all.sh
 
 .PHONY: clean
 clean:
-	rm -f *.html spec.xml spec-testcases.rst spec.rst
+	rm -f *.html $(SPEC).xml $(SPEC)-testcases.rst $(SPEC).rst
