@@ -165,8 +165,10 @@ Setting the encoded value
 Producers SHOULD NOT overwrite existing values; instead they should append
 their new mappings onto the right of any existing value.
 
-Each individual mapping has the reproducible *target* path prefix on the left,
-and the unreproducible *source* path prefix on the right.
+Producers that expect reproducible output MUST append at least one distinct
+mapping for each top-level directory that the build is expected to take place
+under. Each mapping has the reproducible *target* path prefix on the left, and
+the unreproducible *source* path prefix on the right.
 
 Producers who build *general software* that uses this variable, MUST NOT expect
 any special contracts on the output emitted by *general consumers* based on
