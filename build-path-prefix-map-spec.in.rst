@@ -220,7 +220,9 @@ Notes and links
     or ``wchar_t`` sequences that are invalid UTF-16, must be decoded into
     distinct application-level character string values. This is not satisfied
     by most standard Unicode decoding strategies, which is to replace all
-    invalid input sequences with ``U+FFFD REPLACEMENT CHARACTER``.
+    invalid input sequences with ``U+FFFD REPLACEMENT CHARACTER``. For these
+    cases, the easiest way to be compliant is to check the decode output for
+    this character and raise an "unsupported" exception if it is found.
 
 .. [2] Detailed implementation notes and advice are available on `our wiki page
     <https://wiki.debian.org/ReproducibleBuilds/BuildPathProposal#Implementation_notes>`_.
