@@ -170,13 +170,14 @@ mapping for each top-level directory that the build is expected to take place
 under. Each mapping has the reproducible *target* path prefix on the left, and
 the unreproducible *source* path prefix on the right.
 
-Producers who build *general software* that uses this variable, MUST NOT expect
-any special contracts on the output emitted by *general consumers* based on
-this variable ― only that their output be reproducible when the build path
-changes and the value of this variable is changed to match the new paths.
+Producers such as top-level distribution package builders, that expect
+*arbitrary consumers* to read this variable, MUST NOT expect any additional
+constraints or special contracts on the output emitted by these consumers ―
+only that their output be reproducible when the build path changes and the
+value of this variable is changed to match the new paths.
 
-On the other hand, if you know you will only support a limited set of
-consumers, you may expect that they apply these mappings in specific ways.
+On the other hand, producers that only support a limited set of consumers, may
+expect that these consumers apply these mappings in particular ways.
 
 See also the requirements for consumers in the next part for guidance.
 
