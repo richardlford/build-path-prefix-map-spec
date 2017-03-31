@@ -1,20 +1,28 @@
 #!/usr/bin/perl
+# TODO: this needs review by a Perl expert, I am a Perl newbie.
 
 use strict;
+use warnings;
 
 # Setting the variable
 
-sub pfmap_enquote {
-	my $part = shift;
-	$part =~ s/%/%#/g;
-	$part =~ s/=/%+/g;
-	$part =~ s/:/%./g;
-	return $part;
-	}
+sub path_prefix_map_enquote {
+    my $part = shift;
+    $part =~ s/%/%#/g;
+    $part =~ s/=/%+/g;
+    $part =~ s/:/%./g;
+    return $part;
+}
 
-$ENV{"BUILD_PATH_PREFIX_MAP"} = sprintf("%s:%s=%s",
-	$ENV{"BUILD_PATH_PREFIX_MAP"},
-	pfmap_enquote($ENV{"NEWDST"}),
-	pfmap_enquote($ENV{"NEWSRC"}));
+sub path_prefix_map_append($$$) {
+    my $curmap = shift;
+    my $dst = shift;
+    my $src = shift;
+    return (length($curmap) ? $curmap . ":" : "") .
+        path_prefix_map_enquote($dst) . "=" . path_prefix_map_enquote($src);
+}
+
+$ENV{"BUILD_PATH_PREFIX_MAP"} = path_prefix_map_append(
+    $ENV{"BUILD_PATH_PREFIX_MAP"}, $ENV{"NEWDST"}, $ENV{"NEWSRC"});
 
 exec @ARGV;
