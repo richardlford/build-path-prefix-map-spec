@@ -215,6 +215,9 @@ Consumers MAY for historical reasons internally store the map with the prefix
 pairs flipped as in (*source*, *target*), instead of (*target*, *source*) as
 described above. New code should prefer the latter representation.
 
+See the appendix for implementation notes on `case-insensitive filesystems
+<#case-insensitive-filesystems>`_.
+
 
 Notes and links
 ===============
@@ -260,6 +263,7 @@ POSIX system strings
 - `limits.h - implementation-defined constants (no HTTPS)
   <http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/limits.h.html>`_
   for the definition of ``CHAR_BIT``.
+
 
 Windows system strings
 ----------------------
@@ -331,6 +335,28 @@ Ximin Luo
 
 Appendix
 ============
+
+Case-insensitive filesystems
+----------------------------
+
+As per the section `Applying the decoded structure
+<#applying-the-decoded-structure>`_ above, programs are free to choose their
+own interpretation of "derived from" to deal with these.
+
+In practice, the following may be an effective approach:
+
+1. After decoding into a list-of-pairs, canonicalise all source paths in this
+   list.
+
+2. When applying the mapping, first canonicalise the path to be mapped (the
+   "subject path"), then apply it on the canonicalised map from step (1).
+
+The exact method for canonicalisation depends on the filesystem. It may involve
+(e.g.) converting to upper case for non-existing files and path components, and
+converting to the preserved case for existing files and path components, for
+filesystems that store this information. Hopefully your system already has a
+utility function that does this.
+
 
 Test vectors
 ------------
