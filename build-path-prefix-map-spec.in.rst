@@ -46,6 +46,17 @@ option itself is saved into other parts of the build output by another tool.
 For more information on Reproducible Builds in general, include its motivation
 and its uses, see `<https://reproducible-builds.org/>`_.
 
+Build and Deploy Phases
+=======================
+
+The original version of this specification was chiefly concerned with
+the use of BUILD_PATH_PREFIX_MAP when building reproducible products,
+what this revised version of the specification calls the
+"Build Phase". 
+
+We now add a specification of the use of BUILD_PATH_PREFIX_MAP 
+in what we call the "Deploy Phase", that is, when the reproducible
+products are deployed and put into use.
 
 Specification
 =============
@@ -53,22 +64,73 @@ Specification
 Overview
 --------
 
-The environment variable ``BUILD_PATH_PREFIX_MAP`` represents an ordered map
+During the build phase,
+the environment variable ``BUILD_PATH_PREFIX_MAP`` represents an ordered map
 that associates reproducible path prefixes that may appear in the build output,
 with path prefixes that exist on the build-time filesystem that must not appear
-in the build output. We use the following terms:
+in the build output. 
+
+During the deploy phase,
+
+We use the following terms:
+the environment variable ``BUILD_PATH_PREFIX_MAP`` represents an ordered map
+that associates reproducible path prefixes that appear in a deployed
+reproducible product with deploy-time search-list prefixes.
+It is logically an inverse of the build-time ``BUILD_PATH_PREFIX_MAP``.
 
 A *producer* is a program that knows how to determine appropriate values for
-the map, and can pass this information to lower-level build tools. For example,
+the map, and can pass this information to lower-level build/deploy tools. 
+For example,
 a distribution's top-level package builder, or a high-level buildsystem.
 
-A *consumer* is a program that generates output that contains paths, but does
+A *consumer* is a program that uses the `BUILD_PATH_PREFIX_MAP``.
+During the build phase it
+generates output that contains paths, but does
 not by itself know enough information about the filesystem layout to be able to
 appropriately strip the build-time specific parts of those paths. Instead, it
 relies on another tool to pass this information in. For example, a C compiler.
 
+A deploy-time *consumer* uses the `BUILD_PATH_PREFIX_MAP`` to convert a
+reproducible path prefix in the product to deploy-time *search-list*
+
 The value of the variable MUST NOT be saved as-is into any output meant to form
 part of a reproducible binary artefact.
+
+Search Lists
+------------
+
+At deploy time, it may be desirable to associate a reproducible prefix
+with more than one deploy-time prefix. We call an ordered list
+of deploy-time prefixes a *search-list*. 
+
+For example, an executable may be made from multiple packages. 
+Some packages may have come from a directory containing all of
+the installed packages of some type (call this `libroot`). But others may have
+come from a local user development directory which itself
+contains sources (call it `srcroot`), and also a build subdirectory
+(call it `buildroot`). All of the packages having been built
+reproducibly, let us suppose they are identified with reproducible
+paths like `reproot/package1`, etc. 
+
+Now, one approach would be to have separate mapping for each
+individual package, with the development systems knowing 
+which packages came from where.
+
+However, a simpler approach would be to map
+`reproot` to the ordered list `libroot;buildroot;srcroot`. 
+To be consistent with the rest of the specification, the
+items to the right have highest priority.
+That is, when you want to find an artifact, look first in `srcroot`
+which will have the artifact if it came from there
+(e.g. we want sourc files to come from their).
+Next look in the `buildroot` which will have your updated
+artifacts. Finally get unmodified packages from `libroot`.
+
+The above is the justification for search lists.
+Not that the search lists as they appear in the
+``BUILD_PATH_PREFIX_MAP``, after being digests will probably
+have their order reversed, as they will be use similar
+to the way ``PATH`` is used.
 
 
 Encoding and decoding the variable
@@ -102,7 +164,11 @@ The encoding is as follows:
   either the left or right end of the value, are valid and are ignored. [3]_
 
 - Each encoded list item contains exactly one ``=`` character, that separates
-  encoded pair elements.
+  an encoded target search list on the left and an encoded source on the
+  right.
+
+  The ``;`` character separates encoded target paths in the
+  encoded target search list.
 
   If there are zero or more than one ``=`` characters, this is a parse error.
   [4]_
@@ -115,19 +181,21 @@ The encoding is as follows:
   1. ``%`` → ``%#``
   2. ``=`` → ``%+``
   3. ``:`` → ``%.``
+  4. ``;`` → ``%,``
 
   When decoding, ``%`` characters at the end of a string are a parse error, as
-  are ``%X`` substrings where ``X`` is any character not in ``#+.``.
+  are ``%X`` substrings where ``X`` is any character not in ``#+.,``.
 
-  This encoding allows paths containing ``%``, ``=``, ``:`` to be mapped; since
-  users may want to run their builds under such paths. However as a producer,
+  This encoding allows paths containing ``%``, ``=``, ``:``, ``;`` to be mapped; since users may want to run their builds under such paths
+  or deploy to such paths. However as a producer,
   if this is not possible for your consumers, for example because you directly
   restrict the possible build paths, then you may omit this encoding logic.
 
   Our choice of characters means there is flexibility in the order in which
   these mappings can be applied. The only restriction is that the ``%`` →
   ``%#`` mapping for encoding must not be applied on already-encoded
-  %-substrings; and that the ``%+`` → ``=``, ``%.`` → ``:`` mappings for
+  %-substrings; and that the ``%+`` → ``=``, ``%.`` → ``:``,
+  ``%,`` → ``;``  mappings for
   decoding must not be applied on already-decoded %-substrings. This is meant
   to ease implementation in a variety of programming languages.
 
@@ -135,12 +203,12 @@ The encoding is as follows:
 
   A. Decoding:
 
-     1. check that ``elem`` does not match the regex ``/%[^#+.]|%$/g``, then
-     2. ``elem.replace("%.", ":").replace("%+", "=").replace("%#", "%")``
+     1. check that ``elem`` does not match the regex ``/%[^#+.,]|%$/g``, then
+     2. ``elem.replace("%,", ";").elem.replace("%.", ":").replace("%+", "=").replace("%#", "%")``
 
   B. Encoding:
 
-     1. ``elem.replace("%", "%#").replace("=", "%+").replace(":", "%.")``
+     1. ``elem.replace("%", "%#").replace("=", "%+").replace(":", "%.").replace(";", "%,")``
 
   Our recommended approach for a low-level language without string replace:
 
@@ -162,7 +230,8 @@ then the parser must communicate the error in some way to the caller.
 Setting the encoded value
 -------------------------
 
-Producers SHOULD NOT overwrite existing values; instead they should append
+During the build phase,
+producers SHOULD NOT overwrite existing values; instead they should append
 their new mappings onto the right of any existing value.
 
 Producers that expect reproducible output MUST append at least one distinct
@@ -181,6 +250,8 @@ expect that these consumers apply these mappings in particular ways.
 
 See also the requirements for consumers in the next part for guidance.
 
+During the deploy phase, it is not expected that their will be more
+than one producer, the one that knows the desired deploy-time search list.
 
 Applying the decoded structure
 ------------------------------
@@ -188,7 +259,8 @@ Applying the decoded structure
 Consumers MUST ensure that, at minimum: for all (*target*, *source*) prefix
 pairs in the parsed list, with rightmost pairs taking priority: strings in the
 final build output, that represent build-time paths derived from *source*,
-instead appear to represent potential run-time paths derived from *target*.
+instead appear to represent potential run-time paths derived from *target*,
+or at deploy-time, that they appear to come from a search list.
 
 As a consequence, consumers MUST apply mappings as above, regardless of whether
 the *source* prefix ends with a directory separator or not.
@@ -200,8 +272,16 @@ consumers SHOULD implement one of the following algorithms:
 
 1. For each (*target*, *source*) prefix pair in the list-of-pairs, going from
    right to left: if the subject path starts with the source prefix, then
-   replace this occurence with the target prefix, and return this new path,
+   for each target in the target search list, 
+   replace this occurence with the target prefix, and return the search list,
    ignoring any pairs further left in the list.
+   Note that during the build phase the search lists will only have
+   one element, but during the deploy phase they  will likely
+   have more than one element. Implementations of this specification
+   will likely want to have two decoding interfaces, one that expects
+   only a single target, and one that handles search lists.
+   The former MUST produce an error if there is more than one item
+   in the search list.
 
 2. As in (1) but with "starts with" replaced by "starts with, restricted to
    whole-path components". So for example,
